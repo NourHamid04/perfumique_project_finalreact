@@ -26,18 +26,25 @@ function App() {
 function AppContent() {
   const location = useLocation(); // Now it's inside BrowserRouter
 
-
+  // Hide Footer if on an Admin Page
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
     <>
       <Navbar />
       <Routes>
-
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin/*" element={<Admin />} /> {/* Admin Routes */}
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/shop/:id" element={<ItemDetails />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-   
-     <Footer />
+      {/* Show Footer only if NOT in admin pages */}
+      {!isAdminPage && <Footer />}
     </>
   );
 }
