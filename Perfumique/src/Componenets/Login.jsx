@@ -16,8 +16,8 @@ function Login() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                await fetchUserRole(user.uid);
-            }
+                await (user.uid);
+            }fetchUserRole
         });
         return () => unsubscribe();
     }, []);

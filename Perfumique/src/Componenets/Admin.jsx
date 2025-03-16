@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 import AdminDashboard from "./AdminDashboard";
 import AdminPerfumes from "./AdminPerfumes";
-
+import AdminUsers from "./AdminUsers";
 import Admin_bg from "../assets/website/admin_bg.png"
 function Admin() {
 
@@ -22,6 +22,8 @@ function Admin() {
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="perfumes" element={<AdminPerfumes />} />
+          <Route path="users" element={<AdminUsers />} />
+
         </Routes>
       </div>
 

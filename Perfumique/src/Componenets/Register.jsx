@@ -43,7 +43,7 @@ function Register() {
                 email,
                 address,
                 phone,
-                role: "admin",
+                role: "customer",
             });
     
             console.log("User registered with UID:", userId);
