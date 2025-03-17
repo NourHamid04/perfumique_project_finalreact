@@ -144,26 +144,42 @@ const AdminPerfumes = () => {
         </div>
       )}
 
-  
+
       {open && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <AddPerfumesForm isOpen={open} onClose={handleOpen} />
         </div>
       )}
 
-      {/* View Perfume */}
+      {/* View Perfume Modal */}
       {selectedPerfume && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl w-96 text-center">
             <h3 className="text-lg font-semibold text-black mb-3">{selectedPerfume.name}</h3>
-            <img src="https://via.placeholder.com/300" alt="Perfume" className="w-full h-64 object-cover rounded-md" />
-            <p className="text-gray-700 mt-2">{selectedPerfume.description || "No description available."}</p>
-            <button className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300" onClick={closeModal}>
+
+            {/* Perfume Image */}
+            <img
+              src={selectedPerfume.imageUrl || "https://via.placeholder.com/300"}
+              alt={selectedPerfume.name}
+              className="w-full h-64 object-cover rounded-md"
+            />
+
+            {/* Perfume Description */}
+            <p className="text-gray-700 mt-3">
+              {selectedPerfume.description ? selectedPerfume.description : "No description available."}
+            </p>
+
+            {/* Close Button */}
+            <button
+              className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300"
+              onClick={closeModal}
+            >
               Close
             </button>
           </div>
         </div>
       )}
+
     </div>
   );
 };

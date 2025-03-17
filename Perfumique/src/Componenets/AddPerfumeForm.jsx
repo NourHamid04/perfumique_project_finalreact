@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { db } from "../firebase"; // Import Firestore
+import { db } from "../firebase"; // Firestore
 import { collection, addDoc } from "firebase/firestore";
+import { supabase } from "../supabase"; // Import Supabase client
 import {
   Dialog,
   DialogHeader,
@@ -13,12 +14,13 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    description: "", // ✅ Added back the description field
+    description: "",
     stock: "",
     image: null,
   });
 
   const [imageName, setImageName] = useState("");
+  const [uploading, setUploading] = useState(false); // Upload state
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,6 +32,25 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
       setFormData({ ...formData, image: file });
       setImageName(file.name);
     }
+  };
+
+  const uploadImage = async (file) => {
+    if (!file) return null;
+
+    setUploading(true);
+    const filePath = `perfumes/${Date.now()}_${file.name}`; // Unique filename
+
+    const { data, error } = await supabase.storage.from("perfume-images").upload(filePath, file);
+
+    if (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image.");
+      setUploading(false);
+      return null;
+    }
+
+    setUploading(false);
+    return `${supabase.storage.from("perfume-images").getPublicUrl(filePath).data.publicUrl}`;
   };
 
   const handleSubmit = async () => {
@@ -44,18 +65,21 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
     }
 
     try {
-      // Save to Firestore
+      let imageUrl = null;
+      if (formData.image) {
+        imageUrl = await uploadImage(formData.image);
+      }
+
       await addDoc(collection(db, "products"), {
         name: formData.name,
         price: parseFloat(formData.price).toFixed(2),
-        description: formData.description, // ✅ Saving the description
+        description: formData.description,
         stock: parseInt(formData.stock),
-        imageName: imageName, // Store image name for now
+        imageUrl: imageUrl, // Save image URL
         createdAt: new Date(),
       });
 
       alert("Perfume added successfully!");
-
       setFormData({ name: "", price: "", description: "", stock: "", image: null });
       setImageName("");
       onClose();
@@ -100,7 +124,7 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* ✅ Added back the "Description" field */}
+          {/* Description */}
           <div className="flex flex-col">
             <label className="mb-1 text-[#FFD700] text-sm font-semibold">Description</label>
             <textarea
@@ -137,6 +161,7 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
               style={{ border: "none", outline: "none" }} 
             />
             {imageName && <p className="text-gray-300 text-sm mt-1">Uploaded: {imageName}</p>}
+            {uploading && <p className="text-yellow-400 text-sm">Uploading...</p>}
           </div>
         </DialogBody>
 
@@ -144,8 +169,13 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
           <Button variant="text" className="text-red-400 hover:text-red-600 transition duration-300" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="gradient" className="bg-[#FFD700] text-black font-semibold px-4 py-1.5 rounded-md hover:bg-yellow-500 transition duration-300" onClick={handleSubmit}>
-            Add Perfume
+          <Button 
+            variant="gradient" 
+            className="bg-[#FFD700] text-black font-semibold px-4 py-1.5 rounded-md hover:bg-yellow-500 transition duration-300" 
+            onClick={handleSubmit}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading..." : "Add Perfume"}
           </Button>
         </DialogFooter>
       </div>
