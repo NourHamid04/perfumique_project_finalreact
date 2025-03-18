@@ -1,86 +1,105 @@
-import React, { useState } from "react";
-import BannerImg from "./../assets/website/front-view-bottle-perfume-black-glass-bottle.jpg";
-import Perfume1 from "./../assets/perfumes/perfume1.jpg";
-import Perfume2 from "./../assets/perfumes/perfume2.jpg";
-import Perfume3 from "./../assets/perfumes/perfume3.jpg";
-import Perfume4 from "./../assets/perfumes/perfume4.jpg";
-import Perfume5 from "./../assets/perfumes/perfume5.jpg";
-import { FaStar, FaShippingFast, FaQuoteLeft } from "react-icons/fa";
-import { GrShieldSecurity } from "react-icons/gr";
-import { MdPayment, MdLocalOffer } from "react-icons/md";
+import React, { useState, useEffect } from "react";
+import { db } from "../firebase"; // Firestore
+import { collection, getDocs } from "firebase/firestore";
+import { FaStar, FaQuoteLeft } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
-import Header from "../assets/Hero/Header.jpg"
-
+import Header from "../assets/Hero/Header.jpg";
 
 const Home = () => {
+  const [products, setProducts] = useState([]);
   const [orderPopup, setOrderPopup] = useState(false);
   const handleOrderPopup = () => setOrderPopup(true);
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const productList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setProducts(productList.slice(0, 3)); // Display only 3 featured products
+    };
+    fetchProducts();
+  }, []);
+
   return (
-    <div 
-  className="overflow-y-auto"
-  style={{ 
-    backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1)), url(${Header})`,
-
-    backgroundPosition: "center", 
-    backgroundSize: "contain" 
-  }}
-  
->
-
+    <div className="overflow-y-auto bg-black text-[#FFD700]">
       {/* Hero Section */}
-      <div 
-            className="relative min-h-screen bg-cover bg-center text-white flex items-center justify-center"
-           
+      <div
+        className="relative min-h-screen flex items-center justify-center text-center"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 1)), url(${Header})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="relative z-10">
+          <h1 className="text-5xl font-bold">Discover Luxury Fragrances</h1>
+          <p className="text-lg text-gray-300 max-w-xl mx-auto mt-4">
+            Indulge in scents that define elegance and sophistication.
+          </p>
+          <button
+          className="mt-6 bg-[#FFD700] text-black py-2 px-10 text-xl rounded-full font-semibold shadow-lg hover:scale-110 transition-transform"
+          onClick={() => window.location.href = "/shop"} 
+        >
+          Shop Now
+          </button>
 
-            >
-            <div className="absolute inset-0  "></div>
-            
-            <div className="relative z-10 text-center">
-                <h1 className="text-5xl pt-32 mt-32 font-bold text-[#FFD700]">Discover Luxury Fragrances</h1>
-                <p className="text-lg text-gray-300 max-w-xl mx-auto mt-4">
-                Indulge in scents that define elegance and sophistication.
-                </p>
-                <button className="mt-6 bg-[#FFD700] text-black py-3 px-6 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform">
-                Shop Now
-                </button>
-            </div>
-</div>
-
-
-      {/* Top Products */}
-    
-
-      <div className=" py-16 container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {[Perfume1, Perfume2, Perfume3].map((img, index) => (
-          <div key={index} className="border border-[#FFD700] rounded-lg shadow-2xl shadow-yellow-100/20 p-6 rounded-xl shadow-lg hover:scale-105 transition">
-            <img
-              src={img}
-              alt={`Perfume ${index + 1}`}
-              className="h-[250px] w-full object-cover mx-auto rounded-md border border-[#FFD700]"
-            />
-            <h3 className="text-xl font-semibold text-[#FFD700] mt-4">Perfume {index + 1}</h3>
-            <div className="flex justify-center mt-2">
-              {[...Array(3)].map((_, i) => (
-                <FaStar key={i} className="text-yellow-400" />
-              ))}
-            </div>
-            <button className="mt-4 bg-[#FFD700] text-black py-2 px-6 rounded-full font-semibold hover:scale-105 transition-transform">
-              Order Now
-            </button>
-          </div>
-        ))}
+        </div>
       </div>
-    
-    
+
+      {/* Featured Products Section */}
+      <div className="py-16 container mx-auto px-8">
+        <h2 className="text-3xl font-bold text-center mb-8">Featured Perfumes</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          {products.length > 0 ? (
+            products.map((product) => (
+              <div
+                key={product.id}
+                className="border border-[#FFD700] rounded-lg shadow-lg p-6 hover:scale-105 transition"
+              >
+                <img
+                  src={product.imageUrl || "https://via.placeholder.com/300"}
+                  alt={product.name}
+                  className="h-[250px] w-full object-cover rounded-md border border-[#FFD700]"
+                />
+                <h3 className="text-xl font-semibold text-[#FFD700] mt-4">{product.name}</h3>
+                <p className="text-sm text-gray-300">{product.description}</p>
+                <div className="flex justify-center mt-2">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar key={i} className="text-yellow-400" />
+                  ))}
+                </div>
+                <p className="mt-2 text-lg font-semibold">${product.price}</p>
+                <button className="mt-4 bg-[#FFD700] text-black py-2 px-6 rounded-full font-semibold hover:scale-105 transition-transform">
+                  Order Now
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-400 col-span-3">Loading products...</p>
+          )}
+        </div>
+      </div>
+
+      {/* Call-to-Action Section */}
+      <div className="py-16 bg-[#222] text-center">
+        <h2 className="text-4xl font-bold">Luxury at Your Fingertips</h2>
+        <p className="text-lg text-gray-300 max-w-2xl mx-auto mt-4">
+          Experience elegance with our exclusive perfume collection. Get special discounts for first-time buyers!
+        </p>
+        <button className="mt-6 bg-[#FFD700] text-black py-3 px-6 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform">
+          Shop Collection
+        </button>
+      </div>
 
       {/* Testimonials Section */}
-      <div className="py-10 bg-black text-white">
+      <div className="py-16 bg-black text-white">
         <div className="container text-center">
-          <h2 className="text-3xl font-bold text-[#FFD700] mb-6">What Our Customers Say</h2>
+          <h2 className="text-3xl font-bold mb-6">What Our Customers Say</h2>
           <Slider dots infinite speed={500} autoplay autoplaySpeed={3000} slidesToShow={1} slidesToScroll={1}>
             {[
               { id: 1, name: "Victor", text: "Best perfume ever!" },
@@ -97,22 +116,45 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Luxury Brands Section */}
+      <div className="py-16 text-center">
+        <h2 className="text-3xl font-bold mb-8">Our Luxury Brands</h2>
+        <div className="flex justify-center gap-8 flex-wrap">
+          {["Versace", "Dior", "Chanel", "Gucci", "Armani"].map((brand, index) => (
+            <span
+              key={index}
+              className="text-lg font-semibold border border-[#FFD700] py-3 px-6 rounded-full hover:bg-[#FFD700] hover:text-black transition"
+            >
+              {brand}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Newsletter Subscription */}
+      <div className="py-16 bg-[#222] text-center">
+        <h2 className="text-3xl font-bold">Stay Updated</h2>
+        <p className="text-lg text-gray-300 max-w-xl mx-auto mt-4">
+          Subscribe to our newsletter for exclusive discounts and latest arrivals.
+        </p>
+        <div className="mt-6 flex justify-center">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            className="p-3 border border-[#FFD700] bg-black text-white rounded-l-md w-72"
+          />
+          <button className="bg-[#FFD700] text-black px-6 py-3 rounded-r-md font-semibold hover:scale-105 transition-transform">
+            Subscribe
+          </button>
+        </div>
+      </div>
+
       {/* Order Popup */}
       {orderPopup && (
         <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex justify-center items-center">
           <div className="bg-black border border-[#FFD700] p-6 rounded-md relative w-80">
             <IoCloseOutline className="text-2xl text-[#FFD700] cursor-pointer absolute top-2 right-2" onClick={() => setOrderPopup(false)} />
-            <h1 className="text-xl font-bold text-[#FFD700]">Order Now</h1>
-            <input
-              type="text"
-              placeholder="Name"
-              className="w-full border border-[#FFD700] bg-black text-white px-2 py-1 mt-4 rounded"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full border border-[#FFD700] bg-black text-white px-2 py-1 mt-2 rounded"
-            />
+            <h1 className="text-xl font-bold">Order Now</h1>
             <button className="mt-4 bg-[#FFD700] text-black py-2 px-6 rounded-full w-full font-semibold hover:scale-105 transition-transform">
               Order Now
             </button>

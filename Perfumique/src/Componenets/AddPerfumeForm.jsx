@@ -13,11 +13,13 @@ import {
 const AddPerfumesForm = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     name: "",
+    brand: "",  
     price: "",
     description: "",
     stock: "",
     image: null,
   });
+  
 
   const [imageName, setImageName] = useState("");
   const [uploading, setUploading] = useState(false); // Upload state
@@ -72,13 +74,14 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
 
       await addDoc(collection(db, "products"), {
         name: formData.name,
+        brand: formData.brand, 
         price: parseFloat(formData.price).toFixed(2),
         description: formData.description,
         stock: parseInt(formData.stock),
-        imageUrl: imageUrl, // Save image URL
+        imageUrl: imageUrl,
         createdAt: new Date(),
       });
-
+      
       alert("Perfume added successfully!");
       setFormData({ name: "", price: "", description: "", stock: "", image: null });
       setImageName("");
@@ -109,6 +112,26 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
               className="w-full h-10 bg-black text-white border border-[#FFD700] rounded-md px-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
             />
           </div>
+
+          {/* Brand Selection */}
+          <div className="flex flex-col">
+            <label className="mb-1 text-[#FFD700] text-sm font-semibold">Brand *</label>
+            <select
+              name="brand"
+              value={formData.brand}
+              onChange={handleChange}
+              required
+              className="w-full h-10 bg-black text-white border border-[#FFD700] rounded-md px-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
+            >
+              <option value="">Select a brand</option>
+              <option value="Versace">Versace</option>
+              <option value="Dior">Dior</option>
+              <option value="Chanel">Chanel</option>
+              <option value="Gucci">Gucci</option>
+              <option value="Armani">Armani</option>
+            </select>
+          </div>
+
 
           {/* Price */}
           <div className="flex flex-col">

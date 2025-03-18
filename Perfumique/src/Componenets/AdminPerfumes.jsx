@@ -93,7 +93,7 @@ const AdminPerfumes = () => {
               currentPerfumes.map((perfume, index) => (
                 <tr key={perfume.id} className={`hover:bg-[#FFD700] hover:text-black transition duration-300 ${index % 2 === 0 ? "bg-[#222222]" : "bg-black"}`}>
                   <td className="p-2 border border-[#FFD700] text-center">{perfume.name}</td>
-                  <td className="p-2 border border-[#FFD700] text-center">Versace</td>
+                  <td className="p-2 border border-[#FFD700] text-center">{perfume.brand}</td>
                   <td className="p-2 border border-[#FFD700] text-center">${perfume.price}</td>
                   <td className="p-2 border border-[#FFD700] text-center">{perfume.stock}</td>
                   <td className="p-2 border border-[#FFD700] text-center flex gap-2 justify-center">
