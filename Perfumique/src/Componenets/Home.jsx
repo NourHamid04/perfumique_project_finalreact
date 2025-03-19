@@ -1,17 +1,61 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase"; // Firestore
-import { collection, getDocs } from "firebase/firestore";
+import { db ,auth} from "../firebase"; // Firestore
+import { collection, getDocs, query, where,addDoc } from "firebase/firestore";
 import { FaStar, FaQuoteLeft } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Header from "../assets/Hero/Header.jpg";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [orderPopup, setOrderPopup] = useState(false);
+  const navigate = useNavigate();
   const handleOrderPopup = () => setOrderPopup(true);
+
+  const addToCart = async (perfume) => {
+    const user = auth.currentUser; // Get current user
+
+    if (!user) {
+        alert("You must be logged in as a customer to add items to the cart.");
+        return;
+    }
+
+    try {
+        const cartRef = collection(db, "cart_items");
+
+        // ✅ Check if item already exists in the logged-in user's cart
+        const q = query(cartRef, where("userId", "==", user.uid), where("productId", "==", perfume.id));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            // ✅ Item exists, update quantity
+            const cartItem = querySnapshot.docs[0];
+            const cartItemRef = doc(db, "cart_items", cartItem.id);
+            await updateDoc(cartItemRef, {
+                quantity: cartItem.data().quantity + 1, // Increment quantity
+            });
+        } else {
+            // ✅ Item doesn't exist, add new entry
+            await addDoc(cartRef, {
+                userId: user.uid, // ✅ Store user ID
+                productId: perfume.id,
+                name: perfume.name,
+                price: perfume.price,
+                imageUrl: perfume.imageUrl || "https://via.placeholder.com/100",
+                quantity: 1, // Initial quantity
+            });
+        }
+
+        alert("Added to cart!");
+    } catch (error) {
+        console.error("Error adding to cart:", error);
+        alert("Failed to add item.");
+    }
+};
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -60,6 +104,8 @@ const Home = () => {
               <div
                 key={product.id}
                 className="border border-[#FFD700] rounded-lg shadow-lg p-6 hover:scale-105 transition"
+                onClick={() => navigate(`/shop/${product.id}`)}
+                
               >
                 <img
                   src={product.imageUrl || "https://via.placeholder.com/300"}
@@ -74,9 +120,13 @@ const Home = () => {
                   ))}
                 </div>
                 <p className="mt-2 text-lg font-semibold">${product.price}</p>
-                <button className="mt-4 bg-[#FFD700] text-black py-2 px-6 rounded-full font-semibold hover:scale-105 transition-transform">
-                  Order Now
+                <button
+                    className="mt-4 bg-[#FFD700] text-black py-2 px-6 rounded-full font-semibold hover:scale-105 transition-transform"
+                    onClick={() => addToCart(product)}
+                >
+                    Add to Cart
                 </button>
+
               </div>
             ))
           ) : (
