@@ -4,6 +4,9 @@ import { auth, db } from "../firebase";
 import { doc, getDoc, collection, getDocs, query, where, addDoc, updateDoc } from "firebase/firestore";
 import { Button } from "@material-tailwind/react";
 import { FaStar } from "react-icons/fa";
+import ItemimgDetails from './../assets/website/itemDetails-bg.png';
+import checkout from './../assets/website/checkout-bg.png';
+import ContactBg from "../assets/website/contact-bg.png"; // Background Image
 
 const ItemDetails = () => {
   const { id } = useParams();
@@ -112,44 +115,84 @@ const ItemDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-[#FFD700] p-8">
-      <div className="mt-20 container mx-auto max-w-5xl flex flex-col md:flex-row items-center gap-10">
+    <div className="min-h-screen bg-black text-[#FFD700] p-8 pt-32" 
+      style={{ 
+        backgroundImage: `url(${ItemimgDetails}`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}>
+  
+      <div className="container mx-auto max-w-6xl flex flex-col md:flex-row items-center gap-12 bg-black/60 border border-[#FFD700] rounded-xl p-8 shadow-lg backdrop-blur-md">
+        
+        {/* Product Image */}
         <div className="flex-1">
-          <img src={product.imageUrl || "https://via.placeholder.com/500"} alt={product.name} className="w-full h-[450px] object-cover rounded-lg border border-[#FFD700] shadow-lg"/>
+          <img
+            src={product.imageUrl || "https://via.placeholder.com/500"}
+            alt={product.name}
+            className="w-full h-[450px] object-cover rounded-lg border border-[#FFD700]"
+          />
         </div>
-
-        <div className="flex-1">
-          <h1 className="text-4xl font-bold">{product.name}</h1>
-          <h2 className="text-lg mt-2 text-gray-300">Brand: {product.brand || "Unknown"}</h2>
+  
+        {/* Product Details */}
+        <div className="flex-1 text-center md:text-left">
+          <h1 className="text-5xl font-serif font-bold uppercase tracking-wide">{product.name}</h1>
+          <h2 className="text-lg mt-2 text-gray-300 italic">Brand: {product.brand || "Unknown"}</h2>
           <p className="mt-4 text-lg text-gray-300">{product.description}</p>
-          <div className="flex items-center gap-2 mt-3">
-            {[...Array(5)].map((_, i) => (<FaStar key={i} className="text-yellow-400" />))}
+  
+          <div className="flex justify-center md:justify-start gap-1 mt-3">
+            {[...Array(5)].map((_, i) => (
+              <FaStar key={i} className="text-yellow-400" />
+            ))}
           </div>
-          <p className="text-3xl font-semibold mt-4">${(product.price * quantity).toFixed(2)}</p>
-
-          <div className="flex items-center gap-4 mt-4">
-            <button className="bg-gray-700 px-3 py-1 rounded-md" onClick={() => handleQuantityChange(quantity - 1)}>-</button>
+  
+          <p className="text-3xl font-semibold mt-4 text-[#FFD700]">
+            ${ (product.price * quantity).toFixed(2) }
+          </p>
+  
+          {/* Quantity Selector */}
+          <div className="flex justify-center md:justify-start items-center gap-4 mt-4">
+            <button
+              className="bg-gray-800 px-3 py-1 rounded-md border border-[#FFD700] hover:bg-[#FFD700] hover:text-black transition"
+              onClick={() => handleQuantityChange(quantity - 1)}
+            >
+              -
+            </button>
             <span className="text-lg">{quantity}</span>
-            <button className="bg-gray-700 px-3 py-1 rounded-md" onClick={() => handleQuantityChange(quantity + 1)}>+</button>
+            <button
+              className="bg-gray-800 px-3 py-1 rounded-md border border-[#FFD700] hover:bg-[#FFD700] hover:text-black transition"
+              onClick={() => handleQuantityChange(quantity + 1)}
+            >
+              +
+            </button>
             <span className="text-sm text-gray-400">({product.stock} available)</span>
           </div>
-
-          {/* ✅ Show Add to Cart only if user is a Customer */}
+  
+          {/* Add to Cart or Login Prompt */}
           {user && role === "customer" ? (
-            <Button variant="gradient" className="mt-6 bg-[#FFD700] text-black px-6 py-3 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform" onClick={addToCart} disabled={addingToCart}>
+            <Button
+              variant="gradient"
+              className="mt-6 bg-gradient-to-r from-yellow-500 to-yellow-300 text-black px-6 py-3 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform w-full md:w-auto"
+              onClick={addToCart}
+              disabled={addingToCart}
+            >
               {addingToCart ? "Adding..." : "Add to Cart"}
             </Button>
           ) : (
             <p className="mt-6 text-red-400">Login as a customer to add items to cart.</p>
           )}
-
-          <button className="mt-4 block text-[#FFD700] underline hover:text-yellow-400 transition" onClick={() => navigate("/shop")}>
+  
+          {/* Back to Shop */}
+          <button
+            className="mt-4 text-[#FFD700] underline hover:text-yellow-400 transition"
+            onClick={() => navigate("/shop")}
+          >
             ← Back to Shop
           </button>
         </div>
       </div>
     </div>
   );
+  
 };
 
 export default ItemDetails;

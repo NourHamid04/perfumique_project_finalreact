@@ -14,6 +14,8 @@ import 'aos/dist/aos.css';
 import Footer from './Componenets/Footer';
 import Cart from "./Componenets/Cart";
 import Checkout from "./Componenets/Checkout";
+import UserProfile from "./Componenets/UserProfile"; 
+
 function App() {
   AOS.init();
 
@@ -44,6 +46,8 @@ function AppContent() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/shop/:id" element={<ItemDetails />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/userprofile" element={<UserProfile />} /> 
+
         <Route path="*" element={<NotFound />} />
       </Routes>
       {/* Show Footer only if NOT in admin pages */}

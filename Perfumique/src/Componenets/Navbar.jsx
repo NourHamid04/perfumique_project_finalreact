@@ -113,12 +113,19 @@ function Navbar() {
                     <div className="flex items-center gap-4">
                         {/* User Icon Clicks to Admin Dashboard if Admin */}
                         <button
-                            onClick={() => role === "admin" ? navigate("/admin") : null}
-                            className="flex items-center gap-2 text-yellow-400 font-semibold cursor-pointer"
-                        >
-                            <User size={20} />
-                            {user.email}
-                        </button>
+                                onClick={() => {
+                                    if (role === "admin") {
+                                        navigate("/admin"); // Navigate to admin dashboard
+                                    } else {
+                                        navigate("/userprofile"); // Navigate to user profile for regular users
+                                    }
+                                }}
+                                className="flex items-center gap-2 text-yellow-400 font-semibold cursor-pointer"
+                            >
+                                <User size={20} />
+                                {user.email}
+                            </button>
+
 
                         <button
                             onClick={handleLogout}
@@ -170,13 +177,18 @@ function Navbar() {
 
                     {user ? (
                         <>
-                            <button
-                                onClick={() => role === "admin" ? navigate("/admin") : null}
-                                className="flex items-center gap-2 text-yellow-400 font-semibold cursor-pointer"
-                            >
-                                <User size={20} />
-                                {user.email}
-                            </button>
+                           
+                                
+                                <Link
+                                    to="/userprofile"
+                                    className="flex items-center gap-2 text-yellow-400 font-semibold cursor-pointer"
+                                >
+                                    <User size={20} />
+                                    {user.email}
+                                </Link>
+                                
+                            
+
 
                             <button
                                 onClick={handleLogout}
