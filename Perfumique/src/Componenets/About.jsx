@@ -1,7 +1,7 @@
 import React from "react";
 import AboutImage from "../assets/website/about_image.png"; // Ensure this is a high-quality perfume image
 import { Sparkles, Diamond, Leaf } from "lucide-react";
-import AboutHeader from "../assets/Hero/AboutHeader.png"
+import AboutHeader from "../assets/website/about-bg2.png"
 function About() {
     return (
             <div 
@@ -13,22 +13,22 @@ function About() {
             backgroundSize: "contain" 
           }}>
             {/* Hero Section */}
-            <div className="container mx-auto flex flex-col-reverse  lg:flex-row items-center gap-12">
+            <div className="container mx-auto  flex flex-col-reverse  lg:flex-row items-center gap-12">
                 {/* Text Section */}
-                <div className="relative bg-white border border-[#FFD700] rounded-lg shadow-2xl shadow-yellow-100/20 p-16 lg:w-1/2 space-y-6 text-center lg:text-left bg-[url('/path-to-subtle-gold-texture.png')] bg-cover">
+                <div className="relative mt-20 bg-black border border-[#FFD700] rounded-lg shadow-2xl shadow-yellow-100/20 p-16 lg:w-1/2 space-y-6 text-center lg:text-left bg-[url('/path-to-subtle-gold-texture.png')] bg-cover">
     
     {/* Calligraphy Quote for Elegance */}
-    <p className="text-[#FFD700] italic text-sm absolute top-6 left-6">
+    <p className="text-[#FFD700] text-white italic text-sm absolute top-6 left-6">
         "Timeless Elegance in Every Drop"
     </p>
 
     {/* Title */}
-    <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight">
+    <h1 className="text-4xl lg:text-5xl text-white vfont-extrabold tracking-tight">
         Welcome to <span className="text-[#FFD700]">Perfumiqe</span>
     </h1>
 
     {/* Description */}
-    <p className="text-lg text-gray-700 leading-relaxed">
+    <p className="text-lg text-white leading-relaxed ">
         Indulge in the world of <strong>luxury fragrances</strong>. At <strong>Perfumiqe</strong>, we craft and curate
         the finest scents that captivate your senses and leave a <strong>lasting impression</strong>.
     </p>
@@ -42,7 +42,7 @@ function About() {
 
 
                 {/* Image Section */}
-                <div className="lg:w-1/2 flex justify-center mt-20">
+                <div className="lg:w-1/2 flex justify-center mt-24">
                 <img
                     src={AboutImage}
                     alt="Luxury Perfume"
@@ -53,7 +53,7 @@ function About() {
             </div>
 
             {/* Our Values Section */}
-            <div className="container mx-auto mt-20 text-center ">
+            <div className="container mx-auto mt-44 text-center ">
                 <h2 className="text-3xl font-bold text-[#FFD700]">Our Values</h2>
                 <p className="text-gray-400 text-lg max-w-2xl mx-auto">
                     We believe in creating perfumes that **inspire, empower, and enchant**.

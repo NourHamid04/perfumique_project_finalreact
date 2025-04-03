@@ -149,7 +149,16 @@ function Contact() {
               user ? "bg-gradient-to-r from-[#FFD700] to-yellow-500 text-black hover:scale-105 hover:shadow-yellow-500/50 transition-transform" : "bg-gray-600 cursor-not-allowed"
             }`}
           >
-            {sending ? "Sending..." : <><Send size={20} /> Send Message</>}
+           {sending ? (
+                "Sending..."
+              ) : user ? (
+                <>
+                  <Send size={20} /> Send Message
+                </>
+              ) : (
+                "Please log in to send messages"
+              )}
+
           </button>
         </form>
 

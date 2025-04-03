@@ -70,7 +70,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="overflow-y-auto bg-black text-[#FFD700]">
+    <div className="overflow-y bg-black text-[#FFD700]">
       {/* Hero Section */}
       <div
         className="relative min-h-screen flex items-center justify-center text-center"
@@ -96,7 +96,9 @@ const Home = () => {
       </div>
 
       {/* Featured Products Section */}
-      <div className="py-16 container mx-auto px-8">
+      <div className="pt-1 pb-2 container mx-auto px-8">
+
+
         <h2 className="text-3xl font-bold text-center mb-8">Featured Perfumes</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {products.length > 0 ? (

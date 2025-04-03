@@ -4,7 +4,7 @@ import { collection, getDocs,query,where,addDoc } from "firebase/firestore";
 import { Button } from "@material-tailwind/react";
 import ReactPaginate from "react-paginate";
 import { Link } from "react-router-dom";
-import shop from "../assets/website/shop-bg.png"
+import shop from "../assets/website/shop-bg2.png"
 const Shop = () => {
   const [perfumes, setPerfumes] = useState([]);
   const [filteredPerfumes, setFilteredPerfumes] = useState([]);
@@ -99,13 +99,13 @@ const Shop = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-[#FFD700] p-8 "   
+    <div className="min-h-screen bg-black text-[#BFA100] p-8 "   
     style={{ 
       backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 100%), url(${shop})`,
-      backgroundSize: "contain"
+      backgroundSize: "cover"
   }}>
         <div className="mt-24">
-        <h1 className=" text-5xl font-bold text-center border-b border-[#FFD700] pb-4 mt-8 uppercase tracking-wide">
+        <h1 className=" text-5xl font-bold text-center border-b border-[#BFA100] pb-4 mt-8 uppercase tracking-wide">
             Luxurious Perfume Collection
         </h1>
 
