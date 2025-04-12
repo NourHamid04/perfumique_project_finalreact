@@ -148,25 +148,7 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Testimonials Section */}
-      <div className="py-16 bg-black text-white">
-        <div className="container text-center">
-          <h2 className="text-3xl font-bold mb-6">What Our Customers Say</h2>
-          <Slider dots infinite speed={500} autoplay autoplaySpeed={3000} slidesToShow={1} slidesToScroll={1}>
-            {[
-              { id: 1, name: "Victor", text: "Best perfume ever!" },
-              { id: 2, name: "Emily", text: "Amazing fragrance!" },
-              { id: 3, name: "Daniel", text: "Fast delivery!" },
-            ].map((testimonial) => (
-              <div key={testimonial.id} className="p-6 bg-black/90 border border-[#FFD700] rounded-md">
-                <FaQuoteLeft className="text-4xl text-[#FFD700] mx-auto mb-3" />
-                <p className="text-lg text-gray-300">{testimonial.text}</p>
-                <h3 className="text-xl font-semibold text-[#FFD700] mt-4">- {testimonial.name}</h3>
-              </div>
-            ))}
-          </Slider>
-        </div>
-      </div>
+     
 
       {/* Luxury Brands Section */}
       <div className="py-16 text-center">
