@@ -4,7 +4,7 @@ import AdminSidebar from "./AdminSidebar";
 import AdminDashboard from "./AdminDashboard";
 import AdminPerfumes from "./AdminPerfumes";
 import AdminUsers from "./AdminUsers";
-import Admin_bg from "../assets/website/admin_bg.png"
+import Admin_new_bg from "../assets/website/Admin_new_bg.jpg"
 function Admin() {
 
   return (
@@ -14,9 +14,9 @@ function Admin() {
       <AdminSidebar />
 
       {/* Content Area - Ensure Proper Scrolling */}
-      <div className="ml-64 p-6 w-full min-h-screen overflow-y-auto"  style={{ 
-                  backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%), url(${Admin_bg})`,
-                  backgroundSize: "contain" 
+      <div className="ml-64 pl-6 pr-6 w-full min-h-screen overflow-y-auto"  style={{ 
+                  backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%), url(${Admin_new_bg})`,
+                  backgroundSize: "cover" 
                 }}>
         <Routes>
           <Route index element={<AdminDashboard />} />

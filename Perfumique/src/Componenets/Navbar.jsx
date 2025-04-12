@@ -122,8 +122,9 @@ function Navbar() {
                                 }}
                                 className="flex items-center gap-2 text-yellow-400 font-semibold cursor-pointer"
                             >
+                                {/* {console.log("user", user)}
                                 <User size={20} />
-                                {user.email}
+                                {user.email} */}
                             </button>
 
 

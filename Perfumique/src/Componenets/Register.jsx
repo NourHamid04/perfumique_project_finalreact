@@ -6,7 +6,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { Mail, Lock, User, Home, Phone, Eye, EyeOff } from "lucide-react";
 import { setDoc, doc } from "firebase/firestore"; // Use setDoc
 import BackgroundImg from "../assets/website/contact-bg.png"; // Background Image
-
+import { serverTimestamp } from "firebase/firestore";
 
 
 function Register() {
@@ -44,6 +44,8 @@ function Register() {
                 address,
                 phone,
                 role: "customer",
+                createdAt: serverTimestamp(), 
+
             });
     
             console.log("User registered with UID:", userId);

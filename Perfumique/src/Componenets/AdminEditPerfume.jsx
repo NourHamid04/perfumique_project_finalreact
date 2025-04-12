@@ -13,6 +13,10 @@ const AdminEditPerfume = ({ perfumeId, closeModal }) => {
     imageUrl: "", // Initially empty
   });
 
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
+
   const [image, setImage] = useState(null); // New state to store the image file
 
   useEffect(() => {
@@ -47,29 +51,47 @@ const AdminEditPerfume = ({ perfumeId, closeModal }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // If there's an image, just update the image URL in the Firestore document
     let updatedPerfumeData = { ...perfumeData };
-  
+
     if (image) {
       updatedPerfumeData.imageUrl = URL.createObjectURL(image); // Use the local image URL instead of uploading to Firebase
     }
-  
+
     // Now update the Firestore document with the new data
     const perfumeRef = doc(db, "products", perfumeId);
     try {
       await updateDoc(perfumeRef, updatedPerfumeData);
-      alert("Perfume updated successfully!");
-      closeModal(); // Close the modal after successful update
+      setPopupMessage("Perfume Editted successfully!");
+      setShowPopup(true);
     } catch (error) {
       console.error("Error updating perfume: ", error);
       alert("Failed to update perfume.");
     }
   };
-  
+
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-80">
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[6000] flex items-center justify-center">
+          <div className="bg-[#222222] text-white p-6 rounded-md shadow-lg max-w-sm w-full text-center">
+            <p className="mb-4 text-[#FFD700] text-lg">{popupMessage}</p>
+            <div className="flex justify-center">
+              <button
+                onClick={() => {
+                  setShowPopup(false);
+                  closeModal();
+                }}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="bg-black border border-[#FFD700] rounded-lg shadow-2xl shadow-yellow-500/50 p-6 w-full max-w-md">
         <h3 className="text-lg font-bold text-[#FFD700] mb-4">Edit Perfume</h3>
         <form onSubmit={handleSubmit}>

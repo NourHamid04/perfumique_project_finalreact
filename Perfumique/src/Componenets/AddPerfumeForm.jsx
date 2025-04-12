@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../firebase"; // Firestore
 import { collection, addDoc } from "firebase/firestore";
 import { supabase } from "../supabase"; // Import Supabase client
@@ -11,15 +11,19 @@ import {
 } from "@material-tailwind/react";
 
 const AddPerfumesForm = ({ isOpen, onClose }) => {
+
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
   const [formData, setFormData] = useState({
     name: "",
-    brand: "",  
+    brand: "",
     price: "",
     description: "",
     stock: "",
     image: null,
   });
-  
+
 
   const [imageName, setImageName] = useState("");
   const [uploading, setUploading] = useState(false); // Upload state
@@ -47,6 +51,7 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
     if (error) {
       console.error("Error uploading image:", error);
       alert("Failed to upload image.");
+
       setUploading(false);
       return null;
     }
@@ -74,26 +79,52 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
 
       await addDoc(collection(db, "products"), {
         name: formData.name,
-        brand: formData.brand, 
+        brand: formData.brand,
         price: parseFloat(formData.price).toFixed(2),
         description: formData.description,
         stock: parseInt(formData.stock),
         imageUrl: imageUrl,
         createdAt: new Date(),
       });
-      
-      alert("Perfume added successfully!");
+      setPopupMessage("Perfume Added successfully!");
+      setShowPopup(true);
       setFormData({ name: "", price: "", description: "", stock: "", image: null });
       setImageName("");
-      onClose();
     } catch (error) {
       console.error("Error adding perfume:", error);
       alert("Failed to add perfume.");
     }
   };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.log("Popup visibility changed:", showPopup); // This should log 'true' when the popup is shown
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [showPopup]);
+
 
   return (
     <Dialog open={isOpen} handler={onClose} className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-80">
+     {showPopup && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-[6000] flex items-center justify-center">
+    <div className="bg-[#222222] text-white p-6 rounded-md shadow-lg max-w-sm w-full text-center">
+      <p className="mb-4 text-[#FFD700] text-lg">{popupMessage}</p>
+      <div className="flex justify-center">
+        <button
+          onClick={() => {
+            setShowPopup(false); 
+            onClose(); 
+          }}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
       <div className="bg-black border border-[#FFD700] rounded-lg shadow-2xl shadow-yellow-500/50 p-4 max-w-md w-full">
         <DialogHeader className="text-lg font-bold text-[#FFD700]">
           Add New Perfume
@@ -181,9 +212,8 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
               accept="image/*"
               onChange={handleImageChange}
               className="text-white p-2 mt-1 cursor-pointer"
-              style={{ border: "none", outline: "none" }} 
+              style={{ border: "none", outline: "none" }}
             />
-            {imageName && <p className="text-gray-300 text-sm mt-1">Uploaded: {imageName}</p>}
             {uploading && <p className="text-yellow-400 text-sm">Uploading...</p>}
           </div>
         </DialogBody>
@@ -192,9 +222,9 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
           <Button variant="text" className="text-red-400 hover:text-red-600 transition duration-300" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
-            variant="gradient" 
-            className="bg-[#FFD700] text-black font-semibold px-4 py-1.5 rounded-md hover:bg-yellow-500 transition duration-300" 
+          <Button
+            variant="gradient"
+            className="bg-[#FFD700] text-black font-semibold px-4 py-1.5 rounded-md hover:bg-yellow-500 transition duration-300"
             onClick={handleSubmit}
             disabled={uploading}
           >
@@ -202,6 +232,8 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
           </Button>
         </DialogFooter>
       </div>
+
+
     </Dialog>
   );
 };

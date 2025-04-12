@@ -1,17 +1,22 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, onSnapshot, query, where, doc, deleteDoc } from "firebase/firestore";
+import AdminEditUser from "./AdminEditUser";
 
 const AdminUsers = () => {
     const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 5;
-    const [searchNameQuery, setSearchNameQuery] = useState(""); // State for name search query
-    const [searchEmailQuery, setSearchEmailQuery] = useState(""); // State for email search query
-    const [searchPhoneQuery, setSearchPhoneQuery] = useState(""); // State for phone search query
-    const [selectedUsersForDeletion, setSelectedUsersForDeletion] = useState([]); // State for selected users
+    const [searchQuery, setSearchQuery] = useState(""); // Combined name/email search
+    const [searchPhoneQuery, setSearchPhoneQuery] = useState("");
+    const [selectedUsersForDeletion, setSelectedUsersForDeletion] = useState([]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
+    const [sortOrder, setSortOrder] = useState("asc");
+
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState("");
+    const [deleteUserId, setDeleteUserId] = useState(null);
 
     useEffect(() => {
         const q = query(collection(db, "users"), where("role", "==", "customer"));
@@ -27,41 +32,43 @@ const AdminUsers = () => {
     }, []);
 
     const handleDelete = async (id) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
-        if (confirmDelete) {
-            try {
-                await deleteDoc(doc(db, "users", id));
-                alert("User deleted successfully!");
-            } catch (error) {
-                console.error("Error deleting user:", error);
-                alert("Failed to delete user.");
-            }
-        }
+        setDeleteUserId(id);
+        setPopupMessage("Are you sure you want to delete this user?");
+        setShowPopup(true);
     };
 
     const handleDeleteSelectedUsers = async () => {
-        const confirmDelete = window.confirm(
-            "Are you sure you want to delete the selected users?"
-        );
-        if (confirmDelete) {
-            try {
+        setPopupMessage("Are you sure you want to delete the selected users?");
+        setShowPopup(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            if (deleteUserId) {
+                await deleteDoc(doc(db, "users", deleteUserId));
+                setPopupMessage("User deleted successfully!");
+            } else {
                 for (const id of selectedUsersForDeletion) {
                     await deleteDoc(doc(db, "users", id));
                 }
-                alert("Selected users deleted successfully!");
-                setSelectedUsersForDeletion([]); // Clear selection
-            } catch (error) {
-                console.error("Error deleting selected users:", error);
-                alert("Failed to delete selected users.");
+                setPopupMessage("Selected users deleted successfully!");
+                setSelectedUsersForDeletion([]);
             }
+        } catch (error) {
+            setPopupMessage("Failed to delete user(s).");
+            console.error("Error deleting user:", error);
         }
+        setShowPopup(true);
+    };
+
+    const cancelDelete = () => {
+        setShowPopup(false);
+        setDeleteUserId(null);
     };
 
     const handleCheckboxChange = (id) => {
         if (selectedUsersForDeletion.includes(id)) {
-            setSelectedUsersForDeletion(
-                selectedUsersForDeletion.filter((userId) => userId !== id)
-            );
+            setSelectedUsersForDeletion(selectedUsersForDeletion.filter((userId) => userId !== id));
         } else {
             setSelectedUsersForDeletion([...selectedUsersForDeletion, id]);
         }
@@ -72,30 +79,45 @@ const AdminUsers = () => {
         setIsEditModalOpen(true);
     };
 
+
     const closeEditModal = () => {
         setIsEditModalOpen(false);
         setSelectedUserId(null);
+    };
+
+    // Sort users
+    const sortUsers = (usersList) => {
+        return usersList.sort((a, b) => {
+            if (sortOrder === "asc") {
+                return a.name.localeCompare(b.name);
+            } else {
+                return b.name.localeCompare(a.name);
+            }
+        });
     };
 
     // Pagination
     const indexOfLastUser = currentPage * usersPerPage;
     const indexOfFirstUser = indexOfLastUser - usersPerPage;
 
-    // Filter users by name, email, and phone
+    // Filter users
     const filteredUsers = users.filter((user) =>
-        user.name.toLowerCase().includes(searchNameQuery.toLowerCase()) &&
-        user.email.toLowerCase().includes(searchEmailQuery.toLowerCase()) &&
+        (user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchQuery.toLowerCase())) &&
         user.phone.toLowerCase().includes(searchPhoneQuery.toLowerCase())
     );
 
-    const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
-    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+    // Sort filtered users
+    const sortedUsers = sortUsers(filteredUsers);
+
+    const currentUsers = sortedUsers.slice(indexOfFirstUser, indexOfLastUser);
+    const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
 
     const nextPage = () => setCurrentPage((prev) => (prev < totalPages ? prev + 1 : prev));
     const prevPage = () => setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev));
 
     return (
-        <div className="p-4 relative min-h-screen text-[#FFD700] mt-12">
+        <div className="p-4 relative min-h-screen text-[#FFD700]">
             <h2 className="text-2xl font-bold mb-4 border-b border-[#FFD700] pb-2 tracking-wide">
                 Manage Users
             </h2>
@@ -104,25 +126,28 @@ const AdminUsers = () => {
             <div className="flex gap-4 mb-6">
                 <input
                     type="text"
-                    placeholder="Search by Name"
-                    value={searchNameQuery}
-                    onChange={(e) => setSearchNameQuery(e.target.value)}
-                    className="w-1/3 p-2 rounded-md border border-[#FFD700] bg-black text-[#FFD700] placeholder-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition duration-300 mb-2"
-                />
-                <input
-                    type="text"
-                    placeholder="Search by Email"
-                    value={searchEmailQuery}
-                    onChange={(e) => setSearchEmailQuery(e.target.value)}
-                    className="w-1/3 p-2 rounded-md border border-[#FFD700] bg-black text-[#FFD700] placeholder-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition duration-300 mb-2 ml-4"
+                    placeholder="Search by Name or Email"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-1/2 p-2 rounded-md border border-[#FFD700] bg-black text-[#FFD700] placeholder-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition duration-300 mb-2"
                 />
                 <input
                     type="text"
                     placeholder="Search by Phone"
                     value={searchPhoneQuery}
                     onChange={(e) => setSearchPhoneQuery(e.target.value)}
-                    className="w-1/3 p-2 rounded-md border border-[#FFD700] bg-black text-[#FFD700] placeholder-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition duration-300 mb-2 ml-4"
+                    className="w-1/2 p-2 rounded-md border border-[#FFD700] bg-black text-[#FFD700] placeholder-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition duration-300 mb-2"
                 />
+                {/* Sort by Name Input */}
+                <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    className="p-2 rounded-md border border-[#FFD700] bg-black text-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700] transition duration-300 mb-2"
+                >
+                    <option value="" selected>Sort by Name</option>
+                    <option value="asc">A - Z</option>
+                    <option value="desc">Z - A</option>
+                </select>
             </div>
 
             {/* User Table */}
@@ -186,18 +211,29 @@ const AdminUsers = () => {
 
             {/* Pagination */}
             {filteredUsers.length > usersPerPage && (
-                <div className="flex justify-between items-center mt-4">
+                <div className="flex items-center gap-4 mt-4 justify-center">
                     <button
                         onClick={prevPage}
-                        className="bg-yellow-500 text-black px-4 py-2 rounded-md shadow-lg hover:bg-yellow-400 hover:shadow-xl transition duration-300"
                         disabled={currentPage === 1}
+                        className={`px-4 py-2 rounded-md shadow-lg transition duration-300 ${currentPage === 1
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-yellow-500 text-black hover:bg-yellow-400 hover:shadow-xl"
+                            }`}
                     >
                         Prev
                     </button>
+
+                    <span className="text-[#FFD700] font-medium">
+                        Page {currentPage} of {totalPages}
+                    </span>
+
                     <button
                         onClick={nextPage}
-                        className="bg-yellow-500 text-black px-4 py-2 rounded-md shadow-lg hover:bg-yellow-400 hover:shadow-xl transition duration-300"
                         disabled={currentPage === totalPages}
+                        className={`px-4 py-2 rounded-md shadow-lg transition duration-300 ${currentPage === totalPages
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-yellow-500 text-black hover:bg-yellow-400 hover:shadow-xl"
+                            }`}
                     >
                         Next
                     </button>
@@ -205,15 +241,52 @@ const AdminUsers = () => {
             )}
 
             {/* Bottom Right Delete Button */}
-            <div className="absolute bottom-14 right-6 flex gap-4">
+            <div className="absolute bottom-8 right-3 flex gap-4">
                 <button
                     onClick={handleDeleteSelectedUsers}
                     disabled={selectedUsersForDeletion.length === 0}
-                    className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-700 transition duration-300"
+                    className={`px-4 py-2 rounded-md shadow-md transition duration-300 ${selectedUsersForDeletion.length === 0
+                        ? "bg-gray-500 cursor-not-allowed"
+                        : "bg-red-500 hover:bg-red-700 text-white"
+                        }`}
                 >
                     Delete Selected
                 </button>
             </div>
+
+            {/* Custom Popup for Confirmations */}
+            {showPopup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-[#222222] p-6 rounded-md shadow-lg text-center w-96">
+                        <h3 className="text-xl text-[#FFD700] mb-4">{popupMessage}</h3>
+                        <div className="flex justify-around">
+                            <button
+                                onClick={confirmDelete}
+                                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                            >
+                                Yes
+                            </button>
+                            <button
+                                onClick={cancelDelete}
+                                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                            >
+                                No
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isEditModalOpen && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <AdminEditUser
+                        userId={selectedUserId} // Pass the selectedUserId for editing the user
+                        closeModal={closeEditModal}
+                    />
+                </div>
+            )}
+
+
         </div>
     );
 };
