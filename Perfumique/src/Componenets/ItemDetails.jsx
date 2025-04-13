@@ -3,12 +3,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
 import { doc, getDoc, collection, getDocs, query, where, addDoc, updateDoc } from "firebase/firestore";
 import { Button } from "@material-tailwind/react";
-import { FaStar } from "react-icons/fa";
+
 import ItemimgDetails from './../assets/website/itemDetails-bg.png';
 import checkout from './../assets/website/checkout-bg.png';
 import ContactBg from "../assets/website/contact-bg.png"; // Background Image
 
 const ItemDetails = () => {
+  
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -67,7 +70,12 @@ const ItemDetails = () => {
       setQuantity(newQuantity);
     }
   };
-
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => setShowPopup(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPopup]);
   // ✅ Add to Cart (Only for `customer` role)
   const addToCart = async () => {
     if (!user || role !== "customer") {
@@ -101,7 +109,8 @@ const ItemDetails = () => {
         });
       }
 
-      alert("Added to cart!");
+      setPopupMessage("Added to cart!");
+      setShowPopup(true);
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Failed to add item.");
@@ -114,6 +123,7 @@ const ItemDetails = () => {
     return <div className="min-h-screen flex items-center justify-center text-[#FFD700]">Loading product details...</div>;
   }
 
+  
   return (
     <div className="min-h-screen bg-black text-[#FFD700] p-8 pt-32" 
       style={{ 
@@ -139,11 +149,7 @@ const ItemDetails = () => {
           <h2 className="text-lg mt-2 text-gray-300 italic">Brand: {product.brand || "Unknown"}</h2>
           <p className="mt-4 text-lg text-gray-300">{product.description}</p>
   
-          <div className="flex justify-center md:justify-start gap-1 mt-3">
-            {[...Array(5)].map((_, i) => (
-              <FaStar key={i} className="text-yellow-400" />
-            ))}
-          </div>
+        
   
           <p className="text-3xl font-semibold mt-4 text-[#FFD700]">
             ${ (product.price * quantity).toFixed(2) }
@@ -190,6 +196,23 @@ const ItemDetails = () => {
           </button>
         </div>
       </div>
+
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[6000] flex items-center justify-center">
+          <div className="bg-[#222222] text-white p-6 rounded-md shadow-lg max-w-sm w-full text-center">
+            <p className="mb-4 text-[#FFD700] text-lg">{popupMessage}</p>
+            <div className="flex justify-center">
+      
+      <button
+        onClick={() => setShowPopup(false)}
+        className="bg-[#FFD700] text-black px-4 py-2 rounded-md hover:scale-105 transition-transform"
+      >
+        OK
+      </button>
+            </div>
+          </div>
+        </div>
+)}
     </div>
   );
   

@@ -193,6 +193,9 @@ function Register() {
                 >
                     Register
                 </button>
+               
+                <div className="h-1 w-20 bg-[#FFD700] mx-auto mt-5 rounded-full"></div>
+            
                     {/* 🔥 Google Sign Up Button */}
 {/* 🔥 Google Sign Up Button (Styled like others) */}
                 <button
@@ -200,7 +203,7 @@ function Register() {
                     className="w-full bg-gradient-to-r from-[#FFD700] to-yellow-500 text-black py-3 mt-4 rounded-full font-bold text-md sm:text-lg shadow-lg flex items-center justify-center gap-3 hover:scale-105 transition-transform duration-300 hover:shadow-yellow-500/50"
                 >
                     <FaGoogle size={20} className="text-black" />
-                    Sign up with Google
+                    Log In with Google
                 </button>
 
 

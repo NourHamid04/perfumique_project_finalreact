@@ -2,7 +2,9 @@ import React from "react";
 import AboutImage from "../assets/website/about_image.png"; // Ensure this is a high-quality perfume image
 import { Sparkles, Diamond, Leaf } from "lucide-react";
 import AboutHeader from "../assets/website/about-bg2.png"
+import { useNavigate } from "react-router-dom";
 function About() {
+    const navigate = useNavigate();
     return (
             <div 
           className="overflow-y-auto"
@@ -35,7 +37,7 @@ function About() {
 
     {/* Button */}
     <button className="bg-gradient-to-r from-[#FFD700] to-yellow-500 text-black py-3 px-6 rounded-full 
-                        shadow-lg hover:scale-105 hover:shadow-yellow-500/50 transition-transform duration-300 font-semibold">
+                        shadow-lg hover:scale-105 hover:shadow-yellow-500/50 transition-transform duration-300 font-semibold" onClick={() => navigate(`/shop/`)}>
         Explore Collection
     </button>
 </div>

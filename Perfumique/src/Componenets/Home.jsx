@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { db ,auth} from "../firebase"; // Firestore
 import { collection, getDocs, query, where,addDoc } from "firebase/firestore";
-import { FaStar, FaQuoteLeft } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Header from "../assets/Hero/Header.jpg";
 import { useNavigate } from "react-router-dom";
+// Add these imports at the top
+import { doc, updateDoc } from "firebase/firestore";
 
 const Home = () => {
+  
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
   const [products, setProducts] = useState([]);
   const [orderPopup, setOrderPopup] = useState(false);
   const navigate = useNavigate();
@@ -48,8 +52,9 @@ const Home = () => {
                 quantity: 1, // Initial quantity
             });
         }
-
-        alert("Added to cart!");
+        setPopupMessage("Added to cart!");
+        setShowPopup(true);
+       
     } catch (error) {
         console.error("Error adding to cart:", error);
         alert("Failed to add item.");
@@ -68,7 +73,12 @@ const Home = () => {
     };
     fetchProducts();
   }, []);
-
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => setShowPopup(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPopup]);
   return (
     <div className="overflow-y bg-black text-[#FFD700]">
       {/* Hero Section */}
@@ -106,21 +116,18 @@ const Home = () => {
               <div
                 key={product.id}
                 className="border border-[#FFD700] rounded-lg shadow-lg p-6 hover:scale-105 transition"
-                onClick={() => navigate(`/shop/${product.id}`)}
+                
                 
               >
                 <img
                   src={product.imageUrl || "https://via.placeholder.com/300"}
                   alt={product.name}
                   className="h-[250px] w-full object-cover rounded-md border border-[#FFD700]"
+                  onClick={() => navigate(`/shop/${product.id}`)}
                 />
                 <h3 className="text-xl font-semibold text-[#FFD700] mt-4">{product.name}</h3>
                 <p className="text-sm text-gray-300">{product.description}</p>
-                <div className="flex justify-center mt-2">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar key={i} className="text-yellow-400" />
-                  ))}
-                </div>
+            
                 <p className="mt-2 text-lg font-semibold">${product.price}</p>
                 <button
                     className="mt-4 bg-[#FFD700] text-black py-2 px-6 rounded-full font-semibold hover:scale-105 transition-transform"
@@ -195,6 +202,23 @@ const Home = () => {
           </div>
         </div>
       )}
+
+{showPopup && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-[6000] flex items-center justify-center">
+    <div className="bg-[#222222] text-white p-6 rounded-md shadow-lg max-w-sm w-full text-center">
+      <p className="mb-4 text-[#FFD700] text-lg">{popupMessage}</p>
+      <div className="flex justify-center">
+ 
+<button
+  onClick={() => setShowPopup(false)}
+  className="bg-[#FFD700] text-black px-4 py-2 rounded-md hover:scale-105 transition-transform"
+>
+  OK
+</button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

@@ -66,7 +66,7 @@ function Login() {
                     address: "",      // Let them complete later
                     phone: "",
                     role: "customer",
-                    createdAt: new Date()
+                    createdAt: serverTimestamp(),
                 });
             }
     

@@ -13,7 +13,10 @@ const Shop = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const perfumesPerPage = 6; // Number of items per page
-  
+
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
   useEffect(() => {
     const fetchPerfumes = async () => {
       const querySnapshot = await getDocs(collection(db, "products"));
@@ -26,6 +29,14 @@ const Shop = () => {
     };
     fetchPerfumes();
   }, []);
+
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => setShowPopup(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPopup]);
+
   const addToCart = async (perfume) => {
     const user = auth.currentUser; // Get current user
 
@@ -60,7 +71,8 @@ const Shop = () => {
             });
         }
 
-        alert("Added to cart!");
+        setPopupMessage("Added to cart!");
+        setShowPopup(true);
     } catch (error) {
         console.error("Error adding to cart:", error);
         alert("Failed to add item.");
@@ -189,7 +201,22 @@ const Shop = () => {
             />
         )}
         </div>
-        
+           {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[6000] flex items-center justify-center">
+          <div className="bg-[#222222] text-white p-6 rounded-md shadow-lg max-w-sm w-full text-center">
+            <p className="mb-4 text-[#FFD700] text-lg">{popupMessage}</p>
+            <div className="flex justify-center">
+      
+      <button
+        onClick={() => setShowPopup(false)}
+        className="bg-[#FFD700] text-black px-4 py-2 rounded-md hover:scale-105 transition-transform"
+      >
+        OK
+      </button>
+            </div>
+          </div>
+        </div>
+)}
     </div>
 );
 
