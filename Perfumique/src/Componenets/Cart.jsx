@@ -7,7 +7,7 @@ import {
 import { Button } from "@material-tailwind/react";
 import { FaTrash, FaTimes, FaCheckCircle, FaPrint, FaDownload } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import cart from './../assets/website/cart-bg.png';
+import cart from './../assets/website/Admin_new_bg.jpg';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -382,7 +382,7 @@ const Cart = () => {
     <div className="min-h-screen bg-black text-[#FFD700] p-8"  
       style={{ 
         backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 100%), url(${cart})`,
-        backgroundSize: "contain"
+        backgroundSize: "cover"
       }}>
       
       {showBill && (
@@ -461,7 +461,7 @@ const Cart = () => {
           <Button
             variant="gradient"
             className="bg-[#FFD700] text-black px-6 py-3 rounded-md font-semibold shadow-lg hover:scale-105 transition-transform"
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/shop')}
           >
             Browse Products
           </Button>

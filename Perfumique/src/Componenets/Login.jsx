@@ -5,6 +5,8 @@ import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { Mail, Lock, Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import BackgroundImg from "../assets/website/contact-bg.png"; // Background Image
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { FaGoogle } from "react-icons/fa";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -46,7 +48,38 @@ function Login() {
             setError("Invalid email or password. Please try again.");
         }
     };
-
+    const handleGoogleLogin = async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+    
+            // Check if user exists in Firestore
+            const userRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+    
+            if (!userSnap.exists()) {
+                // If new user, create their doc
+                await setDoc(userRef, {
+                    name: user.displayName || "",
+                    email: user.email || "",
+                    address: "",      // Let them complete later
+                    phone: "",
+                    role: "customer",
+                    createdAt: new Date()
+                });
+            }
+    
+            // Redirect based on role
+            const updatedSnap = await getDoc(userRef);
+            const role = updatedSnap.data().role;
+            navigate(role === "admin" ? "/admin" : "/");
+        } catch (error) {
+            console.error("Google login error:", error.message);
+            setError("Google login failed. Please try again.");
+        }
+    };
+    
     return (
         <div 
             className="relative min-h-screen flex items-center justify-center px-8"
@@ -108,6 +141,14 @@ function Login() {
                     className="w-full bg-gradient-to-r from-[#FFD700] to-yellow-500 text-black py-4 mt-8 rounded-md font-bold text-lg shadow-md flex items-center justify-center gap-3 hover:scale-105 transition-transform duration-200"
                 >
                     <LogIn size={24} /> Login
+                </button>
+                {/* 🔹 Google Login Button */}
+                <button
+                    onClick={handleGoogleLogin}
+                    className="w-full bg-gradient-to-r from-[#FFD700] to-yellow-500 text-black py-4 mt-4 rounded-md font-bold text-lg shadow-md flex items-center justify-center gap-3 hover:scale-105 transition-transform duration-200"
+                >
+                    <FaGoogle size={22} className="text-black" />
+                    Login with Google
                 </button>
 
                 {/* 🔸 Register Link */}

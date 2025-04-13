@@ -7,6 +7,8 @@ import { Mail, Lock, User, Home, Phone, Eye, EyeOff } from "lucide-react";
 import { setDoc, doc } from "firebase/firestore"; // Use setDoc
 import BackgroundImg from "../assets/website/contact-bg.png"; // Background Image
 import { serverTimestamp } from "firebase/firestore";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { FaGoogle } from "react-icons/fa";
 
 
 function Register() {
@@ -54,6 +56,33 @@ function Register() {
             console.error("Error registering:", error.message);
         }
     };
+
+    const handleGoogleRegister = async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            const userId = user.uid;
+    
+            // Check if the user already exists (optional if you want to prevent overwrite)
+            const userRef = doc(db, "users", userId);
+            await setDoc(userRef, {
+                name: user.displayName || "",
+                email: user.email || "",
+                address: address || "",     // Let user fill this in the form
+                phone: phone || "",         // Same here
+                role: "customer",
+                createdAt: serverTimestamp(),
+            });
+    
+            console.log("Google user registered with UID:", userId);
+            navigate("/");
+        } catch (error) {
+            console.error("Google sign-in error:", error.message);
+        }
+    };
+    
+
 
     return (
         <div 
@@ -164,7 +193,17 @@ function Register() {
                 >
                     Register
                 </button>
-    
+                    {/* 🔥 Google Sign Up Button */}
+{/* 🔥 Google Sign Up Button (Styled like others) */}
+                <button
+                    onClick={handleGoogleRegister}
+                    className="w-full bg-gradient-to-r from-[#FFD700] to-yellow-500 text-black py-3 mt-4 rounded-full font-bold text-md sm:text-lg shadow-lg flex items-center justify-center gap-3 hover:scale-105 transition-transform duration-300 hover:shadow-yellow-500/50"
+                >
+                    <FaGoogle size={20} className="text-black" />
+                    Sign up with Google
+                </button>
+
+
                 {/* ✨ Decorative Gold Line */}
                 <div className="h-1 w-20 bg-[#FFD700] mx-auto mt-5 rounded-full"></div>
     

@@ -3,7 +3,7 @@ import { Mail, Phone, MapPin, Send, Lock } from "lucide-react";
 import { auth, db } from "../firebase"; // Import Firebase
 import { onAuthStateChanged } from "firebase/auth";
 import emailjs from "emailjs-com"; 
-import ContactBg from "../assets/website/contact-bg.png"; // Background Image
+import ContactBg from "../assets/website/shop-bg2.png"; // Background Image
 import { doc, getDoc } from "firebase/firestore";
 function Contact() {
   const [user, setUser] = useState(null);

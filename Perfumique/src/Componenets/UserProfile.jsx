@@ -4,7 +4,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@material-tailwind/react";
 import { User } from "lucide-react";
-import ContactBg from "../assets/website/contact-bg.png"; // Background Image
+import ContactBg from "../assets/website/shop-bg2.png"; // Background Image
 
 const UserProfile = () => {
   const [userData, setUserData] = useState({
