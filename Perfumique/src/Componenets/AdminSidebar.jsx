@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Package, Users, LogOut } from "lucide-react";
 import { auth } from "../firebase"; 
 import { signOut } from "firebase/auth";
-import sidebar_admin from "../assets/website/sidebar_admin.png";
+import sidebar_admin from "./../assets/website/Admin_new_bg.jpg";
 
 function AdminSidebar() {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ function AdminSidebar() {
     <div className="h-screen w-64 bg-black text-[#FFD700] fixed top-0 left-0 shadow-2xl border-r border-[#FFD700] flex flex-col"
       style={{ 
         backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0) 0%, rgb(232, 206, 140) 100%), url(${sidebar_admin})`,
-        backgroundSize: "contain" 
+        backgroundSize: "cover" 
       }}>
       
   
