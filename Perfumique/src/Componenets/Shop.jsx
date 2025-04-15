@@ -76,7 +76,7 @@ const Shop = () => {
         setShowPopup(true);
     } catch (error) {
         console.error("Error adding to cart:", error);
-        setPopupMessage("Field to add item!");
+        setPopupMessage("Item aleardy added to cart! ");
         setShowPopup(true);
     }
 };
@@ -153,37 +153,50 @@ const Shop = () => {
 
         {/* Product Grid */}
         <div className="grid md:grid-cols-3 gap-12 mt-12">
-            {currentItems.length > 0 ? (
-                currentItems.map((perfume) => (
-                    <div key={perfume.id} className="border border-[#FFD700] p-6 rounded-lg  bg-black/60 backdrop-blur-md transition-transform duration-300 hover:scale-105">
-                        <Link to={`/shop/${perfume.id}`}>
-                            <img
-                                src={perfume.imageUrl || "https://via.placeholder.com/300"}
-                                alt={perfume.name}
-                                className="w-full h-72 object-cover rounded-lg border border-[#FFD700] "
-                            />
-                        </Link>
-                        <h2 className="text-2xl font-bold mt-4 text-center tracking-wide">{perfume.name}</h2>
-                        <p className="text-md text-gray-300 mt-2 text-center">{perfume.description || "No description available"}</p>
-                        <p className="mt-4 text-xl font-semibold text-center">${perfume.price}</p>
-
-                        {/* Add to Cart Button */}
-                        <Button
-                            variant="gradient"
-                            className="mt-6 bg-gradient-to-r from-yellow-500 to-yellow-300 text-black px-5 py-3 rounded-md shadow-md font-semibold  w-full"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                addToCart(perfume);
-                            }}
-                        >
-                            Add to Cart
-                        </Button>
-                    </div>
-                ))
-            ) : (
-                <p className="text-center text-gray-400 col-span-3 text-xl">No perfumes found...</p>
-            )}
+          {currentItems.length > 0 ? (
+            currentItems.map((perfume) => (
+              <div
+                key={perfume.id}
+                className="flex flex-col justify-between h-[550px] border border-[#FFD700] p-8 rounded-lg bg-black/60 backdrop-blur-md transition-transform duration-300 hover:scale-105"
+                >
+                <Link to={`/shop/${perfume.id}`}>
+                <div className="w-full h-[350px] flex items-center justify-center bg-black">
+          <img
+            src={perfume.imageUrl || "https://via.placeholder.com/300"}
+            alt={perfume.name}
+            className="max-w-full max-h-full object-contain rounded-lg border border-[#FFD700]"
+          />
         </div>
+
+        </Link>
+        <div className="flex flex-col justify-between flex-grow mt-4">
+          <h2 className="text-2xl font-bold text-center tracking-wide">{perfume.name}</h2>
+          <p className="text-md text-gray-300 mt-1 text-center">
+            {perfume.description || "No description available"}
+          </p>
+          <p className="mt-1 text-xl font-semibold text-center">${perfume.price}</p>
+        </div>
+
+        <Button
+  variant="gradient"
+  className="mt-2 bg-gradient-to-r from-yellow-500 to-yellow-300 text-black px-8 py-4 rounded-xl shadow-lg font-semibold w-full overflow-hidden focus:outline-none active:scale-95 transition-transform duration-100 tracking-wide flex items-center justify-center"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent event bubbling if needed
+    addToCart(perfume);
+  }}
+>
+  Add to Cart
+</Button>
+
+
+      </div>
+    ))
+  ) : (
+    <p className="text-center text-gray-400 col-span-3 text-xl">No perfumes found...</p>
+  )}
+</div>
+
 
         {/* Pagination */}
         {pageCount > 1 && (

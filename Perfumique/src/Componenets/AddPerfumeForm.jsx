@@ -160,6 +160,8 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
               <option value="Chanel">Chanel</option>
               <option value="Gucci">Gucci</option>
               <option value="Armani">Armani</option>
+              <option value="Hugo Boss">Hugo Boss</option>
+
             </select>
           </div>
 
