@@ -41,7 +41,8 @@ const Shop = () => {
     const user = auth.currentUser; // Get current user
 
     if (!user) {
-        alert("You must be logged in as a customer to add items to the cart.");
+      setPopupMessage("you must logg in in order to be able to add to cart!");
+      setShowPopup(true);
         return;
     }
 
@@ -75,7 +76,8 @@ const Shop = () => {
         setShowPopup(true);
     } catch (error) {
         console.error("Error adding to cart:", error);
-        alert("Failed to add item.");
+        setPopupMessage("Field to add item!");
+        setShowPopup(true);
     }
 };
 
