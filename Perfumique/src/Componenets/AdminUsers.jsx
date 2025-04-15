@@ -18,6 +18,8 @@ const AdminUsers = () => {
     const [popupMessage, setPopupMessage] = useState("");
     const [deleteUserId, setDeleteUserId] = useState(null);
 
+    const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+
     useEffect(() => {
         const q = query(collection(db, "users"), where("role", "==", "customer"));
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -33,8 +35,13 @@ const AdminUsers = () => {
 
     const handleDelete = async (id) => {
         setDeleteUserId(id);
+
         setPopupMessage("Are you sure you want to delete this user?");
         setShowPopup(true);
+    };
+    const closePopup = () => {
+        setShowPopup(false);
+        setDeleteConfirmed(false);
     };
 
     const handleDeleteSelectedUsers = async () => {
@@ -44,9 +51,12 @@ const AdminUsers = () => {
 
     const confirmDelete = async () => {
         try {
+            console.log("Selected Users: ", selectedUsersForDeletion);
+
             if (deleteUserId) {
                 await deleteDoc(doc(db, "users", deleteUserId));
                 setPopupMessage("User deleted successfully!");
+                setDeleteConfirmed(true);
             } else {
                 for (const id of selectedUsersForDeletion) {
                     await deleteDoc(doc(db, "users", id));
@@ -54,6 +64,9 @@ const AdminUsers = () => {
                 setPopupMessage("Selected users deleted successfully!");
                 setSelectedUsersForDeletion([]);
             }
+            
+            setDeleteConfirmed(true);
+
         } catch (error) {
             setPopupMessage("Failed to delete user(s).");
             console.error("Error deleting user:", error);
@@ -256,26 +269,44 @@ const AdminUsers = () => {
 
             {/* Custom Popup for Confirmations */}
             {showPopup && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-[#222222] p-6 rounded-md shadow-lg text-center w-96">
-                        <h3 className="text-xl text-[#FFD700] mb-4">{popupMessage}</h3>
-                        <div className="flex justify-around">
-                            <button
-                                onClick={confirmDelete}
-                                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                            >
-                                Yes
-                            </button>
-                            <button
-                                onClick={cancelDelete}
-                                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                            >
-                                No
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="bg-[#222222] p-6 rounded-md shadow-lg text-center w-96">
+            <h3 className="text-xl text-[#FFD700] mb-4">
+                {deleteConfirmed
+                    ? "User deleted successfully."
+                    : "Are you sure you want to delete this user?"}
+            </h3>
+            <div className="flex justify-around">
+                {deleteConfirmed ? (
+                    <button
+                        onClick={closePopup}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    >
+                        Close
+                    </button>
+                ) : (
+                    <>
+                        <button
+                            onClick={confirmDelete}
+                            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                        >
+                            Yes
+                        </button>
+                        <button
+                            onClick={cancelDelete}
+                            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                        >
+                            No
+                        </button>
+                    </>
+                )}
+            </div>
+        </div>
+    </div>
+)}
+
+
+
 
             {isEditModalOpen && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

@@ -68,12 +68,13 @@ const AdminPerfumes = () => {
 
   const confirmDelete = async () => {
     try {
+      console.log("deletePerfumeId", deletePerfumeId)
       if (deletePerfumeId) {
-        await deleteDoc(doc(db, "perfumes", deletePerfumeId));
+        await deleteDoc(doc(db, "products", deletePerfumeId));
         setPopupMessage("Perfume deleted successfully!");
       } else {
         for (const id of selectedPerfumesForDeletion) {
-          await deleteDoc(doc(db, "perfumes", id));
+          await deleteDoc(doc(db, "products", id));
         }
         setPopupMessage("Selected perfumes deleted successfully!");
         setSelectedPerfumesForDeletion([]);
