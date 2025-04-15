@@ -21,6 +21,69 @@ const ItemDetails = () => {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
 
+  //for reviews
+  // Add these new state variables at the top of the component
+  const [reviews, setReviews] = useState([]);
+  const [userReview, setUserReview] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  //average rating
+  const [averageRating, setAverageRating] = useState(0);
+
+  useEffect(() => {
+    if (reviews.length > 0) {
+      const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+      setAverageRating(total / reviews.length);
+    } else {
+      setAverageRating(0);
+    }
+  }, [reviews]);
+
+
+  //  fetching reviews
+useEffect(() => {
+
+// Update the fetchReviews function
+const fetchReviews = async () => {
+  try {
+    const reviewsRef = collection(db, "reviews");
+    const q = query(reviewsRef, where("product_id", "==", id));
+    const querySnapshot = await getDocs(q);
+    
+    const reviewsData = [];
+    let userReviewData = null;
+    
+    // Use Promise.all to fetch user data in parallel
+    const reviewsWithUsers = await Promise.all(
+      querySnapshot.docs.map(async (reviewDoc) => { // Changed parameter name to reviewDoc
+        const review = { id: reviewDoc.id, ...reviewDoc.data() };
+        // Fetch user data
+        const userDoc = await getDoc(doc(db, "users", review.user_id));
+        review.userName = userDoc.exists() ? userDoc.data().name : "Anonymous";
+        return review;
+      })
+    );
+
+    reviewsWithUsers.forEach((review) => {
+      if (user && review.user_id === user.uid) {
+        userReviewData = review;
+      }
+      reviewsData.push(review);
+    });
+
+    setReviews(reviewsData);
+    setUserReview(userReviewData);
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+  } finally {
+    setLoadingReviews(false);
+  }
+};
+
+  if (id) fetchReviews();
+}, [id, user]);
   // ✅ Check if User is Logged In and Fetch Role
   useEffect(() => {
     const checkUser = async () => {
@@ -42,6 +105,52 @@ const ItemDetails = () => {
 
     checkUser();
   }, []);
+  // Add the review submission handler
+const handleReviewSubmit = async (e) => {
+  e.preventDefault();
+  if (!user) {
+    alert("Please login to submit a review");
+    return;
+  }
+
+  try {
+    const reviewData = {
+      user_id: user.uid,
+      product_id: id,
+      rating,
+      comment,
+      created_at: new Date(),
+    };
+
+    if (userReview) {
+      // Update existing review
+      const reviewRef = doc(db, "reviews", userReview.id);
+      await updateDoc(reviewRef, reviewData);
+      
+
+        // Update both userReview and reviews state
+      const updatedReviews = reviews.map(review => 
+        review.id === userReview.id ? { ...review, ...reviewData } : review
+      );
+      setReviews(updatedReviews);
+      setUserReview({ ...userReview, ...reviewData });
+
+    } else {
+      // Add new review
+      const docRef = await addDoc(collection(db, "reviews"), reviewData);
+      setReviews([...reviews, { id: docRef.id, ...reviewData }]);
+      setUserReview({ id: docRef.id, ...reviewData });
+    }
+
+    setRating(0);
+    setComment("");
+    setPopupMessage("Review submitted successfully!");
+    setShowPopup(true);
+  } catch (error) {
+    console.error("Error submitting review:", error);
+    alert("Error submitting review");
+  }
+};
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -149,7 +258,25 @@ const ItemDetails = () => {
           <h2 className="text-lg mt-2 text-gray-300 italic">Brand: {product.brand || "Unknown"}</h2>
           <p className="mt-4 text-lg text-gray-300">{product.description}</p>
   
-        
+          {/* Add this after the brand display */}
+<div className="mt-2 flex items-center gap-2">
+  <span className="text-lg">Average Rating:</span>
+  <div className="flex text-[#FFD700]">
+    {[...Array(5)].map((_, index) => (
+      <span
+        key={index}
+        className={`text-xl ${
+          index < Math.round(averageRating)
+            ? 'text-[#FFD700]'
+            : 'text-gray-400'
+        }`}
+      >
+        ★
+      </span>
+    ))}
+  </div>
+  <span className="text-[#FFD700]">({averageRating.toFixed(1)})</span>
+</div>
   
           <p className="text-3xl font-semibold mt-4 text-[#FFD700]">
             ${ (product.price * quantity).toFixed(2) }
@@ -195,6 +322,8 @@ const ItemDetails = () => {
             ← Back to Shop
           </button>
         </div>
+
+
       </div>
 
       {showPopup && (
@@ -213,6 +342,79 @@ const ItemDetails = () => {
           </div>
         </div>
 )}
+
+<div className="mt-12 border-t border-[#FFD700] pt-4 bg-black m-20 p-20 rounded-xl">
+  <h2 className="text-2xl font-bold mb-4">Customer Reviews</h2>
+
+  {/* Review Form */}
+  {user ? (
+    <form onSubmit={handleReviewSubmit} className="mb-8">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-lg">Rating:</span>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => setRating(star)}
+            className={`text-2xl ${rating >= star ? 'text-[#FFD700]' : 'text-gray-400'}`}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+      <textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        placeholder="Write your review..."
+        className="w-full bg-gray-800 border border-[#FFD700] rounded-md p-4 text-white mb-4"
+        rows="4"
+        required
+      />
+      <Button
+        type="submit"
+        className="bg-[#FFD700] text-black px-6 py-2 rounded-md hover:bg-yellow-600 transition"
+      >
+        {userReview ? "Update Review" : "Submit Review"}
+      </Button>
+    </form>
+  ) : (
+    <p className="text-gray-400 mb-8">Please login to leave a review</p>
+  )}
+
+  {/* Reviews List */}
+{/* Reviews List */}
+{loadingReviews ? (
+  <div className="text-center text-[#FFD700]">Loading reviews...</div>
+) : reviews.length === 0 ? (
+  <p className="text-gray-400">No reviews yet. Be the first to write one!</p>
+) : (
+  <div className="space-y-6">
+    {reviews.map((review) => {
+      // Convert Firestore Timestamp to Date if needed
+      const reviewDate = review.created_at?.toDate 
+        ? review.created_at.toDate()
+        : review.created_at;
+      
+      return (
+        <div key={review.id} className="border-b border-[#FFD700]/30 pb-4">
+          <div className="flex items-center gap-4 mb-2">
+            <span className="font-bold text-[#FFD700]">
+            {review.userName}
+            </span>
+            <div className="flex text-[#FFD700]">
+              {'★'.repeat(review.rating).padEnd(5, '☆')}
+            </div>
+            <span className="text-sm text-gray-400 ml-auto">
+              {new Date(reviewDate).toLocaleDateString()}
+            </span>
+          </div>
+          <p className="text-gray-300">{review.comment}</p>
+        </div>
+      )}
+    )}
+  </div>
+)}
+</div>
     </div>
   );
   

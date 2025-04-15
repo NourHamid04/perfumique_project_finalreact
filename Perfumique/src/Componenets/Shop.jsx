@@ -5,6 +5,7 @@ import { Button } from "@material-tailwind/react";
 import ReactPaginate from "react-paginate";
 import { Link } from "react-router-dom";
 import shop from "../assets/website/shop-bg2.png"
+import { doc, updateDoc } from "firebase/firestore"; // Add to existing imports
 const Shop = () => {
   const [perfumes, setPerfumes] = useState([]);
   const [filteredPerfumes, setFilteredPerfumes] = useState([]);
@@ -16,7 +17,28 @@ const Shop = () => {
 
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-
+  // Reviews product
+  const [productReviews, setProductReviews] = useState({});
+  const [minRating, setMinRating] = useState(0);
+  useEffect(() => {
+    const fetchReviews = async () => {
+      const reviewsRef = collection(db, "reviews");
+      const querySnapshot = await getDocs(reviewsRef);
+      
+      const reviewsByProduct = {};
+      querySnapshot.forEach((doc) => {
+        const review = doc.data();
+        if (!reviewsByProduct[review.product_id]) {
+          reviewsByProduct[review.product_id] = [];
+        }
+        reviewsByProduct[review.product_id].push(review);
+      });
+      
+      setProductReviews(reviewsByProduct);
+    };
+    
+    fetchReviews();
+  }, []);
   useEffect(() => {
     const fetchPerfumes = async () => {
       const querySnapshot = await getDocs(collection(db, "products"));
@@ -99,9 +121,16 @@ const Shop = () => {
       updatedPerfumes = updatedPerfumes.filter((p) => parseFloat(p.price) <= parseFloat(maxPrice));
     }
 
+    if (minRating > 0) {
+      updatedPerfumes = updatedPerfumes.filter(p => {
+        const reviews = productReviews[p.id] || [];
+        const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length || 0;
+        return avgRating >= minRating;
+      });
+    }
     setFilteredPerfumes(updatedPerfumes);
     setCurrentPage(0); // Reset to first page after filtering
-  }, [searchQuery, selectedBrand, maxPrice, perfumes]);
+  }, [searchQuery, selectedBrand, maxPrice, minRating,perfumes]);
 
   // Pagination Logic
   const offset = currentPage * perfumesPerPage;
@@ -142,6 +171,18 @@ const Shop = () => {
                 <option value="Dior">Dior</option>
                 <option value="Chanel">Chanel</option>
             </select>
+            <select
+              className="p-3 rounded-md border border-[#FFD700] bg-black text-white focus:ring-2 focus:ring-[#FFD700] text-lg"
+              value={minRating}
+              onChange={(e) => setMinRating(Number(e.target.value))}
+            >
+              <option value={0}>All Ratings</option>
+              <option value={1}>1+ Stars</option>
+              <option value={2}>2+ Stars</option>
+              <option value={3}>3+ Stars</option>
+              <option value={4}>4+ Stars</option>
+              <option value={5}>5 Stars</option>
+            </select>
             <input
                 type="number"
                 placeholder="Max Price"
@@ -157,7 +198,7 @@ const Shop = () => {
             currentItems.map((perfume) => (
               <div
                 key={perfume.id}
-                className="flex flex-col justify-between h-[550px] border border-[#FFD700] p-8 rounded-lg bg-black/60 backdrop-blur-md transition-transform duration-300 hover:scale-105"
+                className="flex flex-col justify-between h-[700px] border border-[#FFD700] p-8 rounded-lg bg-black/60 backdrop-blur-md transition-transform duration-300 hover:scale-105"
                 >
                 <Link to={`/shop/${perfume.id}`}>
                 <div className="w-full h-[350px] flex items-center justify-center bg-black">
@@ -174,6 +215,33 @@ const Shop = () => {
           <p className="text-md text-gray-300 mt-1 text-center">
             {perfume.description || "No description available"}
           </p>
+           {/* Add Rating Display */}
+  <div className="flex items-center justify-center gap-2 mt-2">
+  <div className="flex text-[#FFD700]">
+  {[...Array(5)].map((_, index) => {
+    const avgRating =
+      productReviews[perfume.id]?.reduce((sum, r) => sum + r.rating, 0) /
+        productReviews[perfume.id]?.length || 0;
+
+    return (
+      <span
+        key={index}
+        className={`text-5xl font-bold drop-shadow ${
+          index < Math.round(avgRating)
+            ? 'text-[#FFD700]'
+            : 'text-gray-400'
+        }`}
+      >
+        ★
+      </span>
+    );
+  })}
+</div>
+
+    <span className="text-sm text-[#FFD700]">
+      ({productReviews[perfume.id]?.length || 0} reviews)
+    </span>
+  </div>
           <p className="mt-1 text-xl font-semibold text-center">${perfume.price}</p>
         </div>
 

@@ -17,6 +17,48 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [orderPopup, setOrderPopup] = useState(false);
   const navigate = useNavigate();
+  // Add this state variable
+const [productsWithRatings, setProductsWithRatings] = useState([]);
+
+// Update the useEffect for fetching products
+useEffect(() => {
+  const fetchProductsWithRatings = async () => {
+    const productsSnapshot = await getDocs(collection(db, "products"));
+    const productsList = productsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    // Fetch ratings for all products
+    const productsWithRatings = await Promise.all(
+      productsList.map(async (product) => {
+        const reviewsSnapshot = await getDocs(
+          query(collection(db, "reviews"), where("product_id", "==", product.id))
+        );
+        
+        const ratings = reviewsSnapshot.docs.map(doc => doc.data().rating);
+        const average = ratings.length > 0 
+          ? ratings.reduce((a, b) => a + b, 0) / ratings.length 
+          : 0;
+
+        return {
+          ...product,
+          averageRating: average,
+          reviewCount: reviewsSnapshot.size
+        };
+      })
+    );
+
+    // Sort by average rating and get top 3
+    const topRated = productsWithRatings
+      .sort((a, b) => b.averageRating - a.averageRating)
+      .slice(0, 3);
+
+    setProductsWithRatings(topRated);
+  };
+
+  fetchProductsWithRatings();
+}, []);
   const handleOrderPopup = () => setOrderPopup(true);
 
   const addToCart = async (perfume) => {
@@ -111,30 +153,45 @@ const Home = () => {
 
         <h2 className="text-3xl font-bold text-center mb-8">Featured Perfumes</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {products.length > 0 ? (
-            products.map((product) => (
-              <div
-                key={product.id}
-                className="border border-[#FFD700] rounded-lg shadow-lg p-6 hover:scale-105 transition"
-                
-                
+        {productsWithRatings.length > 0 ? (
+    productsWithRatings.map((product) => (
+      <div key={product.id} className="border border-[#FFD700] rounded-lg shadow-lg p-6 hover:scale-105 transition">
+        {/* Add rating display */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex text-[#FFD700]">
+            {[...Array(5)].map((_, index) => (
+              <span
+                key={index}
+                className={`text-lg ${
+                  index < Math.round(product.averageRating)
+                    ? 'text-[#FFD700]'
+                    : 'text-gray-400'
+                }`}
               >
-                <img
-                  src={product.imageUrl || "https://via.placeholder.com/300"}
-                  alt={product.name}
-                  className="h-[250px] w-full object-cover rounded-md border border-[#FFD700]"
-                  onClick={() => navigate(`/shop/${product.id}`)}
-                />
-                <h3 className="text-xl font-semibold text-[#FFD700] mt-4">{product.name}</h3>
-                <p className="text-sm text-gray-300">{product.description}</p>
-            
-                <p className="mt-2 text-lg font-semibold">${product.price}</p>
-                <button
-                    className="mt-4 bg-[#FFD700] text-black py-2 px-6 rounded-full font-semibold hover:scale-105 transition-transform"
-                    onClick={() => addToCart(product)}
-                >
-                    Add to Cart
-                </button>
+                ★
+              </span>
+            ))}
+          </div>
+          <span className="text-sm text-[#FFD700]">
+            ({product.reviewCount} reviews)
+          </span>
+        </div>
+
+        <img
+          src={product.imageUrl || "https://via.placeholder.com/300"}
+          alt={product.name}
+          className="h-[250px] w-full object-cover rounded-md border border-[#FFD700]"
+          onClick={() => navigate(`/shop/${product.id}`)}
+        />
+        <h3 className="text-xl font-semibold text-[#FFD700] mt-4">{product.name}</h3>
+        <p className="text-sm text-gray-300">{product.description}</p>
+        <p className="mt-2 text-lg font-semibold">${product.price}</p>
+        <button
+          className="mt-4 bg-[#FFD700] text-black py-2 px-6 rounded-full font-semibold hover:scale-105 transition-transform"
+          onClick={() => addToCart(product)}
+        >
+          Add to Cart
+        </button>
 
               </div>
             ))
