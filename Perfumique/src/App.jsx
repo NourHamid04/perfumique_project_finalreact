@@ -15,7 +15,7 @@ import Footer from './Componenets/Footer';
 import Cart from "./Componenets/Cart";
 import Checkout from "./Componenets/Checkout";
 import UserProfile from "./Componenets/UserProfile"; 
-
+import ProtectedRoute from "./Componenets/ProtectedRoute";
 function App() {
   AOS.init();
 
@@ -38,7 +38,14 @@ function AppContent() {
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin/*" element={<Admin />} />
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/shop" element={<Shop />} />

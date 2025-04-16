@@ -11,15 +11,21 @@ import { useNavigate } from "react-router-dom";
 import { doc, updateDoc } from "firebase/firestore";
 
 const Home = () => {
-  
+
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [products, setProducts] = useState([]);
   const [orderPopup, setOrderPopup] = useState(false);
   const navigate = useNavigate();
+  
   // Add this state variable
 const [productsWithRatings, setProductsWithRatings] = useState([]);
-
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => setShowPopup(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPopup]);
 // Update the useEffect for fetching products
 useEffect(() => {
   const fetchProductsWithRatings = async () => {
@@ -65,7 +71,8 @@ useEffect(() => {
     const user = auth.currentUser; // Get current user
 
     if (!user) {
-        alert("You must be logged in as a customer to add items to the cart.");
+      setPopupMessage("you must logg in in order to be able to add to cart!");
+      setShowPopup(true);
         return;
     }
 
@@ -148,58 +155,86 @@ useEffect(() => {
       </div>
 
       {/* Featured Products Section */}
-      <div className="pt-1 pb-2 container mx-auto px-8">
+{/* Featured Products Section */}
+<div className="pt-1 pb-2 container mx-auto px-8">
+  <h2 className="text-3xl font-bold text-center mb-8 text-[#FFD700] tracking-wide">
+     Top Rated Perfumes
+  </h2>
 
-
-        <h2 className="text-3xl font-bold text-center mb-8">Featured Perfumes</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {productsWithRatings.length > 0 ? (
-    productsWithRatings.map((product) => (
-      <div key={product.id} className="border border-[#FFD700] rounded-lg shadow-lg p-6 hover:scale-105 transition">
-        {/* Add rating display */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex text-[#FFD700]">
-            {[...Array(5)].map((_, index) => (
-              <span
-                key={index}
-                className={`text-lg ${
-                  index < Math.round(product.averageRating)
-                    ? 'text-[#FFD700]'
-                    : 'text-gray-400'
-                }`}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-          <span className="text-sm text-[#FFD700]">
-            ({product.reviewCount} reviews)
-          </span>
-        </div>
-
-        <img
-          src={product.imageUrl || "https://via.placeholder.com/300"}
-          alt={product.name}
-          className="h-[250px] w-full object-cover rounded-md border border-[#FFD700]"
-          onClick={() => navigate(`/shop/${product.id}`)}
-        />
-        <h3 className="text-xl font-semibold text-[#FFD700] mt-4">{product.name}</h3>
-        <p className="text-sm text-gray-300">{product.description}</p>
-        <p className="mt-2 text-lg font-semibold">${product.price}</p>
-        <button
-          className="mt-4 bg-[#FFD700] text-black py-2 px-6 rounded-full font-semibold hover:scale-105 transition-transform"
-          onClick={() => addToCart(product)}
+  <div className="grid md:grid-cols-3 gap-12 mt-12">
+    {productsWithRatings.length > 0 ? (
+      productsWithRatings.map((perfume) => (
+        <div
+          key={perfume.id}
+          className="flex flex-col justify-between h-[700px] border border-[#FFD700] p-8 rounded-lg bg-black/60 backdrop-blur-md transition-transform duration-300 hover:scale-105"
         >
-          Add to Cart
-        </button>
+          <div
+            onClick={() => navigate(`/shop/${perfume.id}`)}
+            className="w-full h-[350px] flex items-center justify-center bg-black cursor-pointer"
+          >
+            <img
+              src={perfume.imageUrl || "https://via.placeholder.com/300"}
+              alt={perfume.name}
+              className="max-w-full max-h-full object-contain rounded-lg border border-[#FFD700]"
+            />
+          </div>
 
+          <div className="flex flex-col justify-between flex-grow mt-4">
+            <h2 className="text-2xl font-bold text-center tracking-wide text-[#FFD700]">
+              {perfume.name}
+            </h2>
+            <p className="text-md text-gray-300 mt-1 text-center">
+              {perfume.description || "No description available"}
+            </p>
+
+            {/* Rating Display */}
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <div className="flex text-[#FFD700]">
+                {[...Array(5)].map((_, index) => {
+                  const avgRating = perfume.averageRating || 0;
+                  return (
+                    <span
+                      key={index}
+                      className={`text-2xl drop-shadow ${
+                        index < Math.round(avgRating)
+                          ? "text-[#FFD700]"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      ★
+                    </span>
+                  );
+                })}
               </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-400 col-span-3">Loading products...</p>
-          )}
+              <span className="text-sm text-[#FFD700]">
+                ({perfume.reviewCount || 0} reviews)
+              </span>
+            </div>
+
+            <p className="mt-1 text-xl font-semibold text-center text-white">
+              ${perfume.price}
+            </p>
+          </div>
+
+          <button
+            className="mt-4 bg-gradient-to-r from-yellow-500 to-yellow-300 text-black px-8 py-4 rounded-xl shadow-lg font-semibold w-full transition-transform active:scale-95"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              addToCart(perfume);
+            }}
+          >
+            Add to Cart
+          </button>
         </div>
-      </div>
+      ))
+    ) : (
+      <p className="text-center text-gray-400 col-span-3 text-xl">
+        Loading perfumes...
+      </p>
+    )}
+  </div>
+</div>
 
       {/* Call-to-Action Section */}
       <div className="py-16 bg-[#222] text-center">
@@ -276,6 +311,7 @@ useEffect(() => {
     </div>
   </div>
 )}
+
     </div>
   );
 };

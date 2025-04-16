@@ -46,51 +46,48 @@ function Contact() {
   const sendEmail = async (e) => {
     e.preventDefault();
   
-    // Ensure user is logged in
- 
     if (!user) {
       setPopupMessage("You must be logged in to send a message.");
       setShowPopup(true);
       return;
     }
   
-    // Get form values correctly
-    console.log(message)
-    
-    
     if (!message) {
       setPopupMessage("Please enter a message.");
       setShowPopup(true);
       return;
     }
   
-    const templateParams = {
-      from_name: user.name || "User",
-      from_email: user.email,
-      to_name: "Admin",
-      message: message, // Get the message safely
-    };
-
-
+    setSending(true);
   
+    // Prepare form data
+    const nameVal = name;
+    const emailVal =  "nourhamid312@gmail.com";
+    const messageVal = message;
     try {
-       const response =  emailjs.send(
-        "service_34zh7v7", // Replace with your EmailJS service ID
-        "template_15myt95", // Replace with your EmailJS template ID
-        templateParams,
-        "GD7UF9UcZqfOuszZa" // Replace with your EmailJS public key
+      await fetch(
+        "https://script.google.com/macros/s/AKfycbxvKcMenVlG4VJB19Fhce5goWz80bptNjEwZxAm08SWq69Od2ciirp6Z_YK9x2shHGHtg/exec",
+        {
+          method: "POST",
+  
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `name=${encodeURIComponent(nameVal)}&email=${encodeURIComponent(emailVal)}&message=${encodeURIComponent(messageVal)}`,
+        }
       );
-      console.log("Email sent successfully:", response);
-      setPopupMessage("Message sent successfully!");
-      setShowPopup(true);
-      setMessage("");
-      e.target.reset(); // Reset form after submission
-    } catch (error) {
-      console.error("Failed to send email:", error);
-      setPopupMessage("Failed to send message. Please try again.");
+  
+      setPopupMessage("Message submitted successfully!");
+      setMessage(""); // Clear message input
+    } catch (err) {
+      console.error(err);
+      setPopupMessage("Something went wrong. Please try again.");
+    } finally {
+      setSending(false);
       setShowPopup(true);
     }
   };
+  
   
 
   return (
@@ -118,7 +115,7 @@ function Contact() {
         <div className="flex flex-col lg:flex-row justify-around items-center mt-8 space-y-6 lg:space-y-0">
           <div className="flex items-center gap-3">
             <Mail size={24} className="text-[#FFD700]" />
-            <p className="text-gray-400">mhmsaeed26@gmail.com</p>
+            <p className="text-gray-400">nourhamid312@gmail.com</p>
           </div>
           <div className="flex items-center gap-3">
             <Phone size={24} className="text-[#FFD700]" />

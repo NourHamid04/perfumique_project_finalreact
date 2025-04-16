@@ -170,6 +170,9 @@ const Shop = () => {
                 <option value="Versace">Versace</option>
                 <option value="Dior">Dior</option>
                 <option value="Chanel">Chanel</option>
+                <option value="Gucci">Gucci</option>
+                <option value="Armani">Armani</option>
+               <option value="Hugo Boss">Hugo Boss</option>
             </select>
             <select
               className="p-3 rounded-md border border-[#FFD700] bg-black text-white focus:ring-2 focus:ring-[#FFD700] text-lg"
@@ -226,7 +229,7 @@ const Shop = () => {
     return (
       <span
         key={index}
-        className={`text-5xl font-bold drop-shadow ${
+        className={`text-4xl  drop-shadow ${
           index < Math.round(avgRating)
             ? 'text-[#FFD700]'
             : 'text-gray-400'

@@ -104,7 +104,8 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
 
 
   return (
-    <Dialog open={isOpen} handler={onClose} className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-80">
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center">
+    <div className="bg-black border border-[#FFD700] rounded-lg  p-4 max-w-md w-full relative">
      {showPopup && (
   <div className="fixed inset-0 bg-black bg-opacity-50 z-[6000] flex items-center justify-center">
     <div className="bg-[#222222] text-white p-6 rounded-md shadow-lg max-w-sm w-full text-center">
@@ -236,7 +237,8 @@ const AddPerfumesForm = ({ isOpen, onClose }) => {
       </div>
 
 
-    </Dialog>
+      </div>
+  </div>
   );
 };
 
