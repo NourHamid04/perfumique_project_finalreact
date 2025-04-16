@@ -253,7 +253,7 @@ useEffect(() => {
       <div className="py-16 text-center">
         <h2 className="text-3xl font-bold mb-8">Our Luxury Brands</h2>
         <div className="flex justify-center gap-8 flex-wrap">
-          {["Versace", "Dior", "Chanel",].map((brand, index) => (
+          {["Versace", "Dior", "Chanel"," Boss","Armani"].map((brand, index) => (
             <span
               key={index}
               className="text-lg font-semibold border border-[#FFD700] py-3 px-6 rounded-full hover:bg-[#FFD700] hover:text-black transition"
