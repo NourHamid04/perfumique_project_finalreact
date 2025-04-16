@@ -207,7 +207,7 @@ useEffect(() => {
         <p className="text-lg text-gray-300 max-w-2xl mx-auto mt-4">
           Experience elegance with our exclusive perfume collection. Get special discounts for first-time buyers!
         </p>
-        <button className="mt-6 bg-[#FFD700] text-black py-3 px-6 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform">
+        <button className="mt-6 bg-[#FFD700] text-black py-3 px-6 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform" onClick={()=>{navigate("/shop")}}>
           Shop Collection
         </button>
       </div>
@@ -218,7 +218,7 @@ useEffect(() => {
       <div className="py-16 text-center">
         <h2 className="text-3xl font-bold mb-8">Our Luxury Brands</h2>
         <div className="flex justify-center gap-8 flex-wrap">
-          {["Versace", "Dior", "Chanel", "Gucci", "Armani"].map((brand, index) => (
+          {["Versace", "Dior", "Chanel",].map((brand, index) => (
             <span
               key={index}
               className="text-lg font-semibold border border-[#FFD700] py-3 px-6 rounded-full hover:bg-[#FFD700] hover:text-black transition"

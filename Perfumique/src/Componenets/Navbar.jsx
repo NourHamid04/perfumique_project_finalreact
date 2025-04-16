@@ -124,7 +124,7 @@ function Navbar() {
                             >
                                 {console.log("user", user)}
                                 <User size={20} />
-                                {user.email}
+                                Profile 
                             </button>
 
 

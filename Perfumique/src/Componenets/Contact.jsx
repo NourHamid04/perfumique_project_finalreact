@@ -11,7 +11,15 @@ function Contact() {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
 
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => setShowPopup(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPopup]);
   // 🔥 Detect Logged-in User
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -41,7 +49,8 @@ function Contact() {
     // Ensure user is logged in
  
     if (!user) {
-      alert("You must be logged in to send a message.");
+      setPopupMessage("You must be logged in to send a message.");
+      setShowPopup(true);
       return;
     }
   
@@ -50,7 +59,8 @@ function Contact() {
     
     
     if (!message) {
-      alert("Please enter a message.");
+      setPopupMessage("Please enter a message.");
+      setShowPopup(true);
       return;
     }
   
@@ -60,20 +70,25 @@ function Contact() {
       to_name: "Admin",
       message: message, // Get the message safely
     };
+
+
   
     try {
-      const response = await emailjs.send(
+       const response =  emailjs.send(
         "service_34zh7v7", // Replace with your EmailJS service ID
         "template_15myt95", // Replace with your EmailJS template ID
         templateParams,
         "GD7UF9UcZqfOuszZa" // Replace with your EmailJS public key
       );
-  
       console.log("Email sent successfully:", response);
-      alert("Message sent!");
+      setPopupMessage("Message sent successfully!");
+      setShowPopup(true);
+      setMessage("");
       e.target.reset(); // Reset form after submission
     } catch (error) {
       console.error("Failed to send email:", error);
+      setPopupMessage("Failed to send message. Please try again.");
+      setShowPopup(true);
     }
   };
   
@@ -172,6 +187,21 @@ function Contact() {
           ></iframe>
         </div>
       </div>
+      {showPopup && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-black/90 border border-[#FFD700]/20 rounded-xl p-6 max-w-md w-full mx-4 shadow-xl animate-fade-in">
+            <p className="text-center text-lg text-[#FFD700] mb-4">
+              {popupMessage}
+            </p>
+            <button
+              onClick={() => setShowPopup(false)}
+              className="w-full py-2 bg-[#FFD700]/90 hover:bg-[#FFD700] text-black font-semibold rounded-lg transition-colors"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
